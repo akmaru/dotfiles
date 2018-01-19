@@ -35,6 +35,7 @@
     company-irony
     company-irony-c-headers
     company-rtags
+    easy-kill
     elscreen
     flycheck
     flycheck-irony
@@ -44,6 +45,7 @@
     helm-git-grep
     helm-rtags
     helm-swoop
+    highlight-symbol
     hiwin
     irony
     irony-eldoc
@@ -89,13 +91,13 @@
 ;;              (set-terminal-parameter nil 'background-mode 'light)))
 
 ;; ツールバー非表示
-;;(tool-bar-mode -1)
+(tool-bar-mode -1)
 
 ;; メニューバーを非表示
-;;(menu-bar-mode -1)
+(menu-bar-mode -1)
 
 ;; スクロールバー非表示
-;;(set-scroll-bar-mode nil)
+(set-scroll-bar-mode nil)
 
 ;; 現在のwindowを強調
 (require 'hiwin)
@@ -157,6 +159,11 @@
 (add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
 (setq-default indent-tabs-mode nil)
 (setq-default next-line-add-newlines nil)
+;; ヘッダファイル(.h)をc++モードで開く
+(setq auto-mode-alist
+      (append '(("\\.h$" . c++-mode))
+              auto-mode-alist))
+
 
 ;;; set key [お好きなように]
 (global-set-key "\C-x\j" 'goto-line)
@@ -165,8 +172,7 @@
 (global-set-key "\C-x\C-[" 'repeat-complex-command)
 (global-set-key "\C-x\C-r" 'replace-string)
 (global-set-key "\C-x\C-l" 'revert-buffer)
-(global-set-key "\C-x\C-g" '
-                gdb)
+(global-set-key "\C-c\C-d" 'gdb)
 (global-set-key "\C-c\C-c" 'comment-or-uncomment-region)
 
 (setq windmove-wrap-around t)
@@ -261,8 +267,8 @@
 
 
 ;; ace-isearch
-(require 'ace-isearch)
-(global-ace-isearch-mode 1)
+;; (require 'ace-isearch)
+;; (global-ace-isearch-mode 1)
 
 
 ;; undo-tree
@@ -279,6 +285,21 @@
 ;; smartparens
 (require 'smartparens-config)
 (smartparens-global-mode t)
+
+
+;; highlight-symbol
+(require 'highlight-symbol)
+;;; ソースコードにおいてM-p/M-nでシンボル間を移動
+(add-hook 'prog-mode-hook 'highlight-symbol-nav-mode)
+;;; シンボル置換
+(global-set-key (kbd "M-s M-r") 'highlight-symbol-query-replace)
+(global-set-key (kbd "M-s h r") 'highlight-symbol-remove-all)
+
+
+;; easy-kill
+(require 'easy-kill)
+(global-set-key (kbd "M-w") 'easy-kill)
+
 
 ;; magit
 (require 'magit)
@@ -442,7 +463,8 @@
                     :background "gray40")
 
 (add-to-list `company-backends '(company-irony-c-headers company-irony company-yasnippet))
-(global-company-mode 1)
+(add-hook 'c++-mode-hook 'company-mode)
+;; (global-company-mode 1)
 
 
 ;; flycheck

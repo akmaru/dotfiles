@@ -10,9 +10,9 @@ ln -sf ~/dotfiles/.tmux.conf ~/.tmux.conf
 ln -sf ~/dotfiles/.gitconfig ~/.gitconfig
 
 # emacs
-mkdir ~/.emacs.d
+mkdir -p ~/.emacs.d
 ln -sf ~/dotfiles/.emacs.d/init.el ~/.emacs.d/init.el
 
 # ssh
-mkdir ~/.ssh
+mkdir -p ~/.ssh
 ln -sf ~/dotfiles/.ssh/config ~/.ssh/config
