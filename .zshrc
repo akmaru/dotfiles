@@ -6,7 +6,7 @@ HISTSIZE=10000
 HISTFILE=~/.zhistory
 #SHELL=/bin/zsh
 
-LANG=ja_jp.UTF-8
+#LANG=ja_jp.utf8
 
 #
 # Color Settings
@@ -23,7 +23,7 @@ autoload -Uz is-at-least
 #   $vcs_info_msg_2_ : エラーメッセージ用 (赤)
 zstyle ':vcs_info:*' max-exports 3
 
-zstyle ':vcs_info:*' enable git 
+zstyle ':vcs_info:*' enable git
 #svn hg bzr
 # 標準のフォーマット(git 以外で使用)
 # misc(%m) は通常は空文字列に置き換えられる
@@ -71,7 +71,7 @@ if is-at-least 4.3.11; then
             # 0以外を返すとそれ以降のフック関数は呼び出されない
             return 1
         fi
-	
+
 	if pwd | command grep "/homesc2/kisimoto/eval" > /dev/null 2>&1; then
 	    return 1
 	fi
@@ -221,7 +221,7 @@ case $OSTYPE in
 	stty intr '^c' erase '^h' kill '^u' susp '^z'
 	;;
     irix*)
-        ;;    
+        ;;
     default)
 	stty intr '^c' erase '^h' kill '^u' susp '^z' dsusp '^y'
         ;;
@@ -293,7 +293,7 @@ case $OSTYPE in
         ;;
     irix*)
         ;;
-esac    
+esac
 
 #
 # Functions

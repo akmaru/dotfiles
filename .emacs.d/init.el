@@ -1,15 +1,9 @@
 ;; -*-Emacs-Lisp-*-
-;; デバッグ時は以下をコメントアウト
+;; debug
 ;; (setq debug-on-error t)
 
 ;; ----------------------------------------------------------------
-;; @general
-
-;; スタートアップ非表示
-(setq inhibit-startup-screen t)
-
-;; scratchの初期メッセージ消去
-(setq initial-scratch-message "")
+;; @ package
 
 ;; load-path で ~/.emacs.d とか書かなくてよくなる
 (when load-file-name
@@ -39,6 +33,7 @@
     elscreen
     flycheck
     flycheck-irony
+    git-gutter
     helm
     helm-c-yasnippet
     helm-flycheck
@@ -67,6 +62,16 @@
   (unless (package-installed-p pkg)
     (package-install pkg)))
 
+
+;; ----------------------------------------------------------------
+;; @ general
+
+;; スタートアップ非表示
+(setq inhibit-startup-screen t)
+
+;; scratchの初期メッセージ消去
+(setq initial-scratch-message "")
+
 ;; 終了時にオートセーブファイルを削除する
 (setq delete-auto-save-files t)
 
@@ -78,17 +83,10 @@
 
 
 ;; -----------------------------------------------------------------
-;; @visual
+;; @ visual
 
 ;; theme
-;;(load-theme 'madhat2r t)
-;;(load-theme 'atom-dark t)
 (load-theme 'monokai )t
-
-;; background
-;; (add-hook 'tty-setup-hook
-;;           '(lambda ()
-;;              (set-terminal-parameter nil 'background-mode 'light)))
 
 ;; ツールバー非表示
 (tool-bar-mode -1)
@@ -102,14 +100,15 @@
 ;; 現在のwindowを強調
 (require 'hiwin)
 (hiwin-activate)
-(set-face-background 'hiwin-face "gray20")
+(set-face-background 'hiwin-face "gray25")
 
+;; show line number
+;; (require 'linum)
+;; (global-num-mode 0)
 
 ;; 現在行を目立たせる
-(global-hl-line-mode t)
-;; 下線
-;;(setq hl-line-face 'underline)
-
+(global-hl-line-mode t)  ;; highlight
+;;(setq hl-line-face 'underline)  ;; underline
 
 ; 1行ずつスクロール
 (setq scroll-conservatively 35
@@ -125,26 +124,46 @@
 ;;; ウィンドウ内に収まらないときだけ括弧内も光らせる。
 (setq show-paren-style 'mixed)
 
+;; リージョンのハイライト
+(transient-mark-mode 1)
+
 ;;関数名表示
 (which-function-mode 1)
+
+;; git-gutter-fringe
+(global-git-gutter-mode 1)
 
 ;; gdb
 (setq gdb-many-windows t)
 
-;;;; X-Window 版の場合
-(cond ((eq window-system 'x)
-        ;DEL キーの設定
-       (define-key function-key-map [delete] [8])
-       (put 'delete 'ascii-character 8)
-      ;(menu-bar-mode 0)  ;メニューバーを消す
-       (scroll-bar-mode -1)  ;スクロールバーを消す
-       (load "hilit19")  ;face を利用
-       ))
 
-;;; DEL と BS を入れ換える
-;(load "term/keyswap")
+;; -----------------------------------------------------------------
+;; @ key bindings
+
+;; exchange DEL and BS
 ;(global-set-key "￥C-h" 'delete-backward-char)
 (normal-erase-is-backspace-mode 0)
+
+;;; set key [お好きなように]
+(global-set-key "\C-x\j" 'goto-line)
+;(global-set-key "\M-/" 'auto-fill-mode)
+(global-set-key "\M-r" 'redraw-display)
+(global-set-key "\C-x\C-[" 'repeat-complex-command)
+(global-set-key "\C-x\C-r" 'replace-string)
+(global-set-key "\C-x\C-l" 'revert-buffer)
+(global-set-key "\C-c\C-d" 'gdb)
+(global-set-key "\C-c\C-c" 'comment-or-uncomment-region)
+
+(setq windmove-wrap-around t)
+(global-set-key (kbd "C-c <left>")  'windmove-left)
+(global-set-key (kbd "C-c <right>") 'windmove-right)
+(global-set-key (kbd "C-c <up>")    'windmove-up)
+(global-set-key (kbd "C-c <down>")  'windmove-down)
+
+
+;; -----------------------------------------------------------------
+;; @ C/C++
+
 
 ;; for c-mode
 (defun my-c-mode-common-hook ()
@@ -159,7 +178,8 @@
 (add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
 (setq-default indent-tabs-mode nil)
 (setq-default next-line-add-newlines nil)
-;; ヘッダファイル(.h)をc++モードで開く
+
+;; open ヘッダファイル(.h)をc++モードで開く
 (setq auto-mode-alist
       (append '(("\\.h$" . c++-mode))
               auto-mode-alist))
@@ -260,6 +280,53 @@
 ;	 (auto-fill-mode 1)))
 ;; auto-fill-mode では、各行を 70 文字以内に詰める
 (set-default 'fill-column 60)
+
+
+
+;; -----------------------------------------------------------------
+;; @elscreen
+(require 'elscreen)
+(elscreen-set-prefix-key "\C-z")
+
+;;; [X]を表示しない
+(setq elscreen-tab-display-kill-screen nil)
+;;; [<->]を表示しない
+(setq elscreen-tab-display-control nil)
+
+;; 既存スクリーンのリストを要求された際、0 番が存在しているかのように偽装する
+(defadvice elscreen-get-screen-list (after my-ad-elscreen-get-screenlist disable)
+  (add-to-list 'ad-return-value 0))
+
+;; スクリーン生成時に 0 番が作られないようにする
+(defadvice elscreen-create (around my-ad-elscreen-create activate)
+  (interactive)
+  ;; 0 番が存在しているかのように偽装
+  (ad-enable-advice 'elscreen-get-screen-list 'after 'my-ad-elscreen-get-screenlist)
+  (ad-activate 'elscreen-get-screen-list)
+  ;; 新規スクリーン生成
+  ad-do-it
+  ;; 偽装解除
+  (ad-disable-advice 'elscreen-get-screen-list 'after 'my-ad-elscreen-get-screenlist)
+  (ad-activate 'elscreen-get-screen-list))
+
+;; スクリーン 1 番を作成し 0 番を削除 (起動時、フレーム生成時用)
+(defun my-elscreen-kill-0 ()
+  (when (and (elscreen-one-screen-p)
+             (elscreen-screen-live-p 0))
+    (elscreen-create)
+    (elscreen-kill 0)))
+
+;; フレーム生成時のスクリーン番号が 1 番になるように
+(defadvice elscreen-make-frame-confs (after my-ad-elscreen-make-frame-confs activate)
+  (let ((selected-frame (selected-frame)))
+    (select-frame frame)
+    (my-elscreen-kill-0)
+    (select-frame selected-frame)))
+
+;; 起動直後のスクリーン番号が 1 番になるように
+(add-hook 'after-init-hook 'my-elscreen-kill-0)
+
+(elscreen-start)
 
 
 ;; -----------------------------------------------------------------
@@ -482,46 +549,6 @@
 (add-hook 'c++-mode-hook (lambda()
                            (setq flycheck-gcc-language-standard "c++11")
                            (setq flycheck-clang-language-standard "c++11")))
-
-
-;; Elscreen
-(require 'elscreen)
-(elscreen-set-prefix-key "\C-z")
-
-;; 既存スクリーンのリストを要求された際、0 番が存在しているかのように偽装する
-(defadvice elscreen-get-screen-list (after my-ad-elscreen-get-screenlist disable)
-  (add-to-list 'ad-return-value 0))
-
-;; スクリーン生成時に 0 番が作られないようにする
-(defadvice elscreen-create (around my-ad-elscreen-create activate)
-  (interactive)
-  ;; 0 番が存在しているかのように偽装
-  (ad-enable-advice 'elscreen-get-screen-list 'after 'my-ad-elscreen-get-screenlist)
-  (ad-activate 'elscreen-get-screen-list)
-  ;; 新規スクリーン生成
-  ad-do-it
-  ;; 偽装解除
-  (ad-disable-advice 'elscreen-get-screen-list 'after 'my-ad-elscreen-get-screenlist)
-  (ad-activate 'elscreen-get-screen-list))
-
-;; スクリーン 1 番を作成し 0 番を削除 (起動時、フレーム生成時用)
-(defun my-elscreen-kill-0 ()
-  (when (and (elscreen-one-screen-p)
-             (elscreen-screen-live-p 0))
-    (elscreen-create)
-    (elscreen-kill 0)))
-
-;; フレーム生成時のスクリーン番号が 1 番になるように
-(defadvice elscreen-make-frame-confs (after my-ad-elscreen-make-frame-confs activate)
-  (let ((selected-frame (selected-frame)))
-    (select-frame frame)
-    (my-elscreen-kill-0)
-    (select-frame selected-frame)))
-
-;; 起動直後のスクリーン番号が 1 番になるように
-(add-hook 'after-init-hook 'my-elscreen-kill-0)
-
-(elscreen-start)
 
 
 (custom-set-variables
