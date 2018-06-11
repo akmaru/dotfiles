@@ -266,7 +266,14 @@ compctl -g '*.ps' gv lpr idraw
 #
 # Aliases
 #
-alias ls='ls -F --color=yes'
+case $OSTYPE in
+    darwin*)
+	alias ls='ls -G'
+	;;
+    linux*)
+	alias ls='ls -F --color=yes'
+	;;
+esac
 alias l='ls -lAgs | less -r'
 alias la='ls -A'
 alias ll='ls -l'
