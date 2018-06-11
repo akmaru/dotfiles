@@ -29,8 +29,10 @@
     company-irony
     company-irony-c-headers
     company-rtags
+    dumb-jump
     easy-kill
     elscreen
+    free-keys
     flycheck
     flycheck-irony
     git-gutter
@@ -80,6 +82,57 @@
 
 ;; 保存時に行末の空白を削除する
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
+
+;; bufferの最後でカーソルを動かそうとしても音をならなくする
+(defun next-line (arg)
+  (interactive "p")
+  (condition-case nil
+      (line-move arg)
+    (end-of-buffer)))
+
+;; エラー音をならなくする
+(setq ring-bell-function 'ignore)
+
+;;; 漢字コードの設定
+(set-language-environment "Japanese")
+;(setq default-buffer-file-coding-system 'iso-2022-jp)
+;(set-terminal-coding-system 'iso-2022-jp)
+;(set-terminal-coding-system 'euc-jp)
+(prefer-coding-system 'utf-8)
+(set-default-coding-systems 'utf-8)
+(setq buffer-file-coding-system 'utf-8)
+(set-terminal-coding-system 'utf-8)
+
+(set-keyboard-coding-system 'utf-8)
+
+;;; Tweak UTF-8 CJK
+(cond
+((< emacs-major-version 23)
+(utf-translate-cjk-set-unicode-range
+ '((#x00a2 . #x00a3)
+   (#x00a7 . #x00a8)
+   (#x00ac . #x00ac)
+   (#x00b0 . #x00b1)
+   (#x00b4 . #x00b4)
+   (#x00b6 . #x00b6)
+   (#x00d7 . #x00d7)
+   (#X00f7 . #x00f7)
+   (#x0370 . #x03ff)                    ; Greek and Coptic
+   (#x0400 . #x04FF)                    ; Cyrillic
+   (#x2000 . #x206F)                    ; General Punctuation
+   (#x2100 . #x214F)                    ; Letterlike Symbols
+   (#x2190 . #x21FF)                    ; Arrows
+   (#x2200 . #x22FF)                    ; Mathematical Operators
+   (#x2300 . #x23FF)                    ; Miscellaneous Technical
+   (#x2500 . #x257F)                    ; Box Drawing
+   (#x25A0 . #x25FF)                    ; Geometric Shapes
+   (#x2600 . #x26FF)                    ; Miscellaneous Symbols
+   (#x2e80 . #xd7a3) (#xff00 . #xffef)))
+))
+
+(setq use-kuten-for-period nil)
+(setq use-touten-for-comma nil)
+(setq enable-double-n-syntax t)
 
 
 ;; -----------------------------------------------------------------
@@ -154,6 +207,7 @@
 (global-set-key "\C-c\C-d" 'gdb)
 (global-set-key "\C-c\C-c" 'comment-or-uncomment-region)
 
+;; window移動
 (setq windmove-wrap-around t)
 (global-set-key (kbd "C-c <left>")  'windmove-left)
 (global-set-key (kbd "C-c <right>") 'windmove-right)
@@ -164,8 +218,6 @@
 ;; -----------------------------------------------------------------
 ;; @ C/C++
 
-
-;; for c-mode
 (defun my-c-mode-common-hook ()
   (c-set-style "stroustrup")
   (c-set-style "linux")
@@ -179,95 +231,10 @@
 (setq-default indent-tabs-mode nil)
 (setq-default next-line-add-newlines nil)
 
-;; open ヘッダファイル(.h)をc++モードで開く
+;; ヘッダファイル(.h)をc++モードで開く
 (setq auto-mode-alist
       (append '(("\\.h$" . c++-mode))
               auto-mode-alist))
-
-
-;;; set key [お好きなように]
-(global-set-key "\C-x\j" 'goto-line)
-;(global-set-key "\M-/" 'auto-fill-mode)
-(global-set-key "\M-r" 'redraw-display)
-(global-set-key "\C-x\C-[" 'repeat-complex-command)
-(global-set-key "\C-x\C-r" 'replace-string)
-(global-set-key "\C-x\C-l" 'revert-buffer)
-(global-set-key "\C-c\C-d" 'gdb)
-(global-set-key "\C-c\C-c" 'comment-or-uncomment-region)
-
-(setq windmove-wrap-around t)
-(global-set-key (kbd "C-c <left>")  'windmove-left)
-(global-set-key (kbd "C-c <right>") 'windmove-right)
-(global-set-key (kbd "C-c <up>")    'windmove-up)
-(global-set-key (kbd "C-c <down>")  'windmove-down)
-
-;;; 漢字コードの設定
-(set-language-environment "Japanese")
-;(setq default-buffer-file-coding-system 'iso-2022-jp)
-;(set-terminal-coding-system 'iso-2022-jp)
-;(set-terminal-coding-system 'euc-jp)
-(prefer-coding-system 'utf-8)
-(set-default-coding-systems 'utf-8)
-(setq buffer-file-coding-system 'utf-8)
-(set-terminal-coding-system 'utf-8)
-
-(set-keyboard-coding-system 'utf-8)
-
-;;; Tweak UTF-8 CJK
-(cond
-((< emacs-major-version 23)
-(utf-translate-cjk-set-unicode-range
- '((#x00a2 . #x00a3)
-   (#x00a7 . #x00a8)
-   (#x00ac . #x00ac)
-   (#x00b0 . #x00b1)
-   (#x00b4 . #x00b4)
-   (#x00b6 . #x00b6)
-   (#x00d7 . #x00d7)
-   (#X00f7 . #x00f7)
-   (#x0370 . #x03ff)                    ; Greek and Coptic
-   (#x0400 . #x04FF)                    ; Cyrillic
-   (#x2000 . #x206F)                    ; General Punctuation
-   (#x2100 . #x214F)                    ; Letterlike Symbols
-   (#x2190 . #x21FF)                    ; Arrows
-   (#x2200 . #x22FF)                    ; Mathematical Operators
-   (#x2300 . #x23FF)                    ; Miscellaneous Technical
-   (#x2500 . #x257F)                    ; Box Drawing
-   (#x25A0 . #x25FF)                    ; Geometric Shapes
-   (#x2600 . #x26FF)                    ; Miscellaneous Symbols
-   (#x2e80 . #xd7a3) (#xff00 . #xffef)))
-))
-
-;; GIT
-; contrib/emacs/{git.el,git-blame.el,vc-git.el} をパスの通ったところにコピー
-;;(require 'git)
-; ログを UTF-8 にして，git に渡す
-;;(add-to-list 'process-coding-system-alist '("git" . utf-8))
-
-;;
-;; for MH-E
-;;
-;(setq mh-ins-buf-prefix "> ")
-;(setq mh-progs "/usr/local/bin/")
-;(setq mh-lib "/usr/local/lib/mh/")
-;(setq mhl-formfile "mhl.noconv")
-;
-;(load "mime-setup")
-
-;;
-;; フェンスモードのキーバインドの例
-;;
-;(let (hanchar ch)
-;  (setq hanchar
-;	'("!" "#" "$" "%" "&" "'" "(" ")" "*" "+" "/"
-;	  "0" "1" "2" "3" "4" "5" "6" "7" "8" "9"
-;	  ":" ";" "<" "=" ">" "?" "@"))
-;  (while (setq ch (car hanchar))
-;    (its-defrule ch ch nil nil "roma-kana")
-;    (setq hanchar (cdr hanchar))))
-(setq use-kuten-for-period nil)
-(setq use-touten-for-comma nil)
-(setq enable-double-n-syntax t)
 
 
 
@@ -285,6 +252,7 @@
 
 ;; -----------------------------------------------------------------
 ;; @elscreen
+
 (require 'elscreen)
 (elscreen-set-prefix-key "\C-z")
 
@@ -333,11 +301,6 @@
 ;; @packages
 
 
-;; ace-isearch
-;; (require 'ace-isearch)
-;; (global-ace-isearch-mode 1)
-
-
 ;; undo-tree
 (require 'undo-tree)
 (global-undo-tree-mode t)
@@ -359,8 +322,8 @@
 ;;; ソースコードにおいてM-p/M-nでシンボル間を移動
 (add-hook 'prog-mode-hook 'highlight-symbol-nav-mode)
 ;;; シンボル置換
-(global-set-key (kbd "M-s M-r") 'highlight-symbol-query-replace)
-(global-set-key (kbd "M-s h r") 'highlight-symbol-remove-all)
+(global-set-key (kbd "M-s r") 'highlight-symbol-query-replace)
+(global-set-key (kbd "M-s d") 'highlight-symbol-remove-all)
 
 
 ;; easy-kill
@@ -449,25 +412,25 @@
     '(define-key helm-map (kbd "C-c g") 'helm-git-grep-from-helm))
 
 
-;; rtags
-(require 'rtags)
-(require 'company-rtags)
+;; ;; rtags
+;; (require 'rtags)
+;; (require 'company-rtags)
 
-(setq rtags-completions-enabled t)
-(setq rtags-autostart-diagnostics t)
-(rtags-enable-standard-keybindings)
+;; (setq rtags-completions-enabled t)
+;; (setq rtags-autostart-diagnostics t)
+;; (rtags-enable-standard-keybindings)
 
-(require 'helm-rtags)
-(setq rtags-use-helm t)
+;; (require 'helm-rtags)
+;; (setq rtags-use-helm t)
 
-(when (require 'rtags nil 'noerror)
-  (add-hook 'c-mode-common-hook
-            (lambda ()
-              (when (rtags-is-indexed)
-                (local-set-key (kbd "M-.") 'rtags-find-symbol-at-point)
-                (local-set-key (kbd "M-[") 'rtags-find-references)
-                (local-set-key (kbd "M-]") 'rtags-find-symbol)
-                (local-set-key (kbd "M-,") 'rtags-location-stack-back)))))
+;; (when (require 'rtags nil 'noerror)
+;;   (add-hook 'c-mode-common-hook
+;;             (lambda ()
+;;               (when (rtags-is-indexed)
+;;                 (local-set-key (kbd "M-.") 'rtags-find-symbol-at-point)
+;;                 (local-set-key (kbd "M-[") 'rtags-find-references)
+;;                 (local-set-key (kbd "M-]") 'rtags-find-symbol)
+;;                 (local-set-key (kbd "M-,") 'rtags-location-stack-back)))))
 
 
 ;; yasnippet
@@ -504,6 +467,7 @@
 
 ;; company
 (setq company-idle-delay 0)
+(setq company-minimum-prefix-length 3)
 (global-set-key (kbd "C-M-i") 'company-complete)
 (define-key company-active-map (kbd "C-n") 'company-select-next)
 (define-key company-active-map (kbd "C-p") 'company-select-previous)
@@ -512,6 +476,28 @@
 (define-key company-active-map (kbd "<tab>") 'company-complete-selection)
 ;;(define-key c-mode-map [<tab>] 'company-complete)
 ;;(define-key c++-mode-map [<tab>] 'company-complete)
+
+(defun company--insert-candidate2 (candidate)
+  (when (> (length candidate) 0)
+    (setq candidate (substring-no-properties candidate))
+    (if (eq (company-call-backend 'ignore-case) 'keep-prefix)
+        (insert (company-strip-prefix candidate))
+      (if (equal company-prefix candidate)
+          (company-select-next)
+          (delete-region (- (point) (length company-prefix)) (point))
+        (insert candidate))
+      )))
+
+(defun company-complete-common2 ()
+  (interactive)
+  (when (company-manual-begin)
+    (if (and (not (cdr company-candidates))
+             (equal company-common (car company-candidates)))
+        (company-complete-selection)
+      (company--insert-candidate2 company-common))))
+
+(define-key company-active-map [tab] 'company-complete-common2)
+(define-key company-active-map [backtab] 'company-select-previous) ; おまけ
 
 ;; color-mode
 (set-face-attribute 'company-tooltip nil
@@ -549,6 +535,12 @@
 (add-hook 'c++-mode-hook (lambda()
                            (setq flycheck-gcc-language-standard "c++11")
                            (setq flycheck-clang-language-standard "c++11")))
+
+;; dump-jump
+(require 'dumb-jump)
+(setq dumb-jump-mode t)
+(define-key global-map (kbd "C-c j") 'dumb-jump-go-other-window)
+(define-key global-map (kbd "C-c b") 'dumb-jump-back)
 
 
 (custom-set-variables
