@@ -539,7 +539,8 @@
 ;; dump-jump
 (require 'dumb-jump)
 (setq dumb-jump-mode t)
-(define-key global-map (kbd "C-c j") 'dumb-jump-go-other-window)
+(define-key global-map (kbd "C-c j") 'dumb-jump-go)
+(define-key global-map (kbd "C-c o") 'dumb-jump-go-other-window)
 (define-key global-map (kbd "C-c b") 'dumb-jump-back)
 
 
