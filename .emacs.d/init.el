@@ -40,19 +40,16 @@
     helm-c-yasnippet
     helm-flycheck
     helm-git-grep
-    helm-rtags
+    helm-gtags
     helm-swoop
     highlight-symbol
     hiwin
     irony
     irony-eldoc
-    madhat2r-theme
     magit
     magit-lfs
     monokai-theme
     multi-term
-    rtags
-    smartparens
     undo-tree
     undohist
     yasnippet)
@@ -77,11 +74,24 @@
 ;; 終了時にオートセーブファイルを削除する
 (setq delete-auto-save-files t)
 
+;; バックアップファイルを作らない
+(setq make-backup-files nil)
+(setq backup-inhibited t)
+
 ;; auto revert buffer
 (global-auto-revert-mode 1)
 
+;; 行頭で行削除した場合に行全体を削除する
+(setq kill-whole-line t)
+
 ;; 保存時に行末の空白を削除する
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
+
+;; インデントにスペースを使用する
+(setq-default indent-tabs-mode nil)
+
+;; バッファの最後で新規行を追加するのを禁止する
+(setq-default next-line-add-newlines nil)
 
 ;; bufferの最後でカーソルを動かそうとしても音をならなくする
 (defun next-line (arg)
@@ -228,8 +238,6 @@
   (c-set-offset 'inline-open 0)
   )
 (add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
-(setq-default indent-tabs-mode nil)
-(setq-default next-line-add-newlines nil)
 
 ;; ヘッダファイル(.h)をc++モードで開く
 (setq auto-mode-alist
@@ -254,6 +262,7 @@
 ;; @elscreen
 
 (require 'elscreen)
+
 (elscreen-set-prefix-key "\C-z")
 
 ;;; [X]を表示しない
@@ -296,11 +305,6 @@
 
 (elscreen-start)
 
-
-;; -----------------------------------------------------------------
-;; @packages
-
-
 ;; undo-tree
 (require 'undo-tree)
 (global-undo-tree-mode t)
@@ -322,8 +326,9 @@
 ;;; ソースコードにおいてM-p/M-nでシンボル間を移動
 (add-hook 'prog-mode-hook 'highlight-symbol-nav-mode)
 ;;; シンボル置換
-(global-set-key (kbd "M-s r") 'highlight-symbol-query-replace)
-(global-set-key (kbd "M-s d") 'highlight-symbol-remove-all)
+(global-set-key (kbd "C-c h s") 'highlight-symbol-at-point)
+(global-set-key (kbd "C-c h r") 'highlight-symbol-query-replace)
+(global-set-key (kbd "C-c h d") 'highlight-symbol-remove-all)
 
 
 ;; easy-kill
@@ -361,6 +366,7 @@
 (global-set-key (kbd "M-x") 'helm-M-x)
 (global-set-key (kbd "C-x b") 'helm-mini)
 (global-set-key (kbd "C-x C-f") 'helm-find-files)
+(global-set-key (kbd "M-y") 'helm-show-kill-ring)
 (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebind tab to run persistent action
 (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB work in terminal
 (define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
@@ -412,6 +418,20 @@
     '(define-key helm-map (kbd "C-c g") 'helm-git-grep-from-helm))
 
 
+;; gtags
+;;(with-eval-after-load 'helm-gtags
+(require 'helm-gtags)
+(setq helm-gtags-auto-update t)
+  (add-hook 'helm-gtags-mode-hook
+            '(lambda ()
+               (local-set-key (kbd "M-t") 'helm-gtags-find-tag)
+               (local-set-key (kbd "M-r") 'helm-gtags-find-rtag)
+               (local-set-key (kbd "M-s") 'helm-gtags-find-symbol)
+               (local-set-key (kbd "C-t") 'helm-gtags-pop-stack)))
+  (add-hook 'c++-mode-hook 'helm-gtags-mode)
+
+
+
 ;; ;; rtags
 ;; (require 'rtags)
 ;; (require 'company-rtags)
@@ -448,9 +468,7 @@
 (require 'company-irony)
 (require 'company-irony-c-headers)
 
-(add-hook 'c++-mode-hook 'irony-mode)
-;(add-hook 'c-mode-hook 'irony-mode)
-(add-hook 'objc-mode-hook 'irony-mode)
+(add-hook 'c-mode-common-hook 'irony-mode)
 
 (defun my-irony-mode-hook ()
   (define-key irony-mode-map [remap completion-at-point]
@@ -466,59 +484,62 @@
 
 
 ;; company
-(setq company-idle-delay 0)
-(setq company-minimum-prefix-length 3)
-(global-set-key (kbd "C-M-i") 'company-complete)
-(define-key company-active-map (kbd "C-n") 'company-select-next)
-(define-key company-active-map (kbd "C-p") 'company-select-previous)
-(define-key company-search-map (kbd "C-n") 'company-select-next)
-(define-key company-search-map (kbd "C-p") 'company-select-previous)
-(define-key company-active-map (kbd "<tab>") 'company-complete-selection)
-;;(define-key c-mode-map [<tab>] 'company-complete)
-;;(define-key c++-mode-map [<tab>] 'company-complete)
+(with-eval-after-load 'company
+  (setq company-auto-expand t) ;; 1個目を自動的に補完
+  (setq company-idle-delay 0)
+  (setq company-minimum-prefix-length 2)
+  (setq completion-ignore-case t)
+  (setq company-dabbrev-downcase nil)
+  (global-set-key (kbd "C-M-i") 'company-complete)
+  (define-key company-active-map (kbd "C-n") 'company-select-next)
+  (define-key company-active-map (kbd "C-p") 'company-select-previous)
+  (define-key company-active-map (kbd "<tab>") 'company-complete-selection)
+  ;;(define-key c-mode-map [<tab>] 'company-complete)
+  ;;(define-key c++-mode-map [<tab>] 'company-complete)
 
-(defun company--insert-candidate2 (candidate)
-  (when (> (length candidate) 0)
-    (setq candidate (substring-no-properties candidate))
-    (if (eq (company-call-backend 'ignore-case) 'keep-prefix)
-        (insert (company-strip-prefix candidate))
-      (if (equal company-prefix candidate)
-          (company-select-next)
+
+  (defun company--insert-candidate2 (candidate)
+    (when (> (length candidate) 0)
+      (setq candidate (substring-no-properties candidate))
+      (if (eq (company-call-backend 'ignore-case) 'keep-prefix)
+          (insert (company-strip-prefix candidate))
+        (if (equal company-prefix candidate)
+            (company-select-next)
           (delete-region (- (point) (length company-prefix)) (point))
-        (insert candidate))
-      )))
+          (insert candidate))
+        )))
 
-(defun company-complete-common2 ()
-  (interactive)
-  (when (company-manual-begin)
-    (if (and (not (cdr company-candidates))
-             (equal company-common (car company-candidates)))
-        (company-complete-selection)
-      (company--insert-candidate2 company-common))))
+  (defun company-complete-common2 ()
+    (interactive)
+    (when (company-manual-begin)
+      (if (and (not (cdr company-candidates))
+               (equal company-common (car company-candidates)))
+          (company-complete-selection)
+        (company--insert-candidate2 company-common))))
 
-(define-key company-active-map [tab] 'company-complete-common2)
-(define-key company-active-map [backtab] 'company-select-previous) ; おまけ
+  (define-key company-active-map [tab] 'company-complete-common2)
+  (define-key company-active-map [backtab] 'company-select-previous) ; おまけ
 
-;; color-mode
-(set-face-attribute 'company-tooltip nil
-                    :foreground "black" :background "lightgrey")
-(set-face-attribute 'company-tooltip-common nil
-                    :foreground "black" :background "lightgrey")
-(set-face-attribute 'company-tooltip-common-selection nil
-                    :foreground "white" :background "steelblue")
-(set-face-attribute 'company-tooltip-selection nil
-                    :foreground "black" :background "steelblue")
-(set-face-attribute 'company-preview-common nil
-                    :background nil :foreground "lightgrey" :underline t)
-(set-face-attribute 'company-scrollbar-fg nil
-                    :background "orange")
-(set-face-attribute 'company-scrollbar-bg nil
-                    :background "gray40")
+  ;; color-mode
+  (set-face-attribute 'company-tooltip nil
+                      :foreground "black" :background "lightgrey")
+  (set-face-attribute 'company-tooltip-common nil
+                      :foreground "black" :background "lightgrey")
+  (set-face-attribute 'company-tooltip-common-selection nil
+                      :foreground "white" :background "steelblue")
+  (set-face-attribute 'company-tooltip-selection nil
+                      :foreground "black" :background "steelblue")
+  (set-face-attribute 'company-preview-common nil
+                      :background nil :foreground "lightgrey" :underline t)
+  (set-face-attribute 'company-scrollbar-fg nil
+                      :background "orange")
+  (set-face-attribute 'company-scrollbar-bg nil
+                      :background "gray40")
 
-(add-to-list `company-backends '(company-irony-c-headers company-irony company-yasnippet))
-(add-hook 'c++-mode-hook 'company-mode)
-;; (global-company-mode 1)
-
+  (add-to-list `company-backends '(company-irony-c-headers company-irony));; company-yasnippet))
+  (add-hook 'c++-mode-hook 'company-mode)
+  ;; (global-company-mode 1)
+)
 
 ;; flycheck
 (require 'flycheck)
@@ -536,12 +557,17 @@
                            (setq flycheck-gcc-language-standard "c++11")
                            (setq flycheck-clang-language-standard "c++11")))
 
-;; dump-jump
-(require 'dumb-jump)
-(setq dumb-jump-mode t)
-(define-key global-map (kbd "C-c j") 'dumb-jump-go)
-(define-key global-map (kbd "C-c o") 'dumb-jump-go-other-window)
-(define-key global-map (kbd "C-c b") 'dumb-jump-back)
+(eval-after-load "flycheck"
+  '(progn
+     (when (locate-library "flycheck-irony")
+       (flycheck-irony-setup))))
+
+;; ;; dump-jump
+;; (require 'dumb-jump)
+;; (setq dumb-jump-mode t)
+;; (define-key global-map (kbd "C-c j") 'dumb-jump-go)
+;; (define-key global-map (kbd "C-c o") 'dumb-jump-go-other-window)
+;; (define-key global-map (kbd "C-c b") 'dumb-jump-back)
 
 
 (custom-set-variables
