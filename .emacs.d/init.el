@@ -15,12 +15,14 @@
 ;; パッケージの追加
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
 (package-initialize)
 
 ;; パッケージリスト
 (defvar package-list
   '(ace-jump-mode
     ace-isearch
+    anzu
     auto-compile
     auto-complete
     c-eldoc
@@ -29,6 +31,7 @@
     company-irony
     company-irony-c-headers
     company-rtags
+    disaster
     dumb-jump
     easy-kill
     elscreen
@@ -38,9 +41,11 @@
     git-gutter
     helm
     helm-c-yasnippet
+    helm-elscreen
     helm-flycheck
     helm-git-grep
     helm-gtags
+    helm-make
     helm-swoop
     highlight-symbol
     hiwin
@@ -48,6 +53,7 @@
     irony-eldoc
     magit
     magit-lfs
+    modern-cpp-font-lock
     monokai-theme
     multi-term
     undo-tree
@@ -83,6 +89,9 @@
 
 ;; 行頭で行削除した場合に行全体を削除する
 (setq kill-whole-line t)
+
+;; 問い合わせを簡略化 yes/no を y/n
+(fset 'yes-or-no-p 'y-or-n-p)
 
 ;; 保存時に行末の空白を削除する
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
@@ -160,6 +169,9 @@
 ;; スクロールバー非表示
 (set-scroll-bar-mode nil)
 
+;; 画面分割は横を優先に
+(setq split-height-threshold nil)
+
 ;; 現在のwindowを強調
 (require 'hiwin)
 (hiwin-activate)
@@ -196,6 +208,23 @@
 ;; git-gutter-fringe
 (global-git-gutter-mode 1)
 
+;; anzu
+(global-anzu-mode 1)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(anzu-deactivate-region t)
+ '(anzu-mode-lighter "")
+ '(anzu-search-threshold 1000)
+ '(custom-safe-themes
+   (quote
+    ("3629b62a41f2e5f84006ff14a2247e679745896b5eaa1d5bcfbc904a3441b0cd" "a49760e39bd7d7876c94ee4bf483760e064002830a63e24c2842a536c6a52756" "a1289424bbc0e9f9877aa2c9a03c7dfd2835ea51d8781a0bf9e2415101f70a7e" "0b7ee9bac81558c11000b65100f29b09488ff9182c083fb303c7f13fd0ec8d2b" default)))
+ '(package-selected-packages
+   (quote
+    (package-utils atom-dark-theme undo-tree multi-term irony-eldoc helm-swoop helm-rtags helm-git-grep helm-flycheck helm-c-yasnippet flycheck-irony elscreen company-rtags company-irony-c-headers company-irony cmake-mode cmake-ide c-eldoc auto-complete auto-compile ace-jump-mode ace-isearch))))
+
 ;; gdb
 (setq gdb-many-windows t)
 
@@ -213,9 +242,14 @@
 (global-set-key "\M-r" 'redraw-display)
 (global-set-key "\C-x\C-[" 'repeat-complex-command)
 (global-set-key "\C-x\C-r" 'replace-string)
-(global-set-key "\C-x\C-l" 'revert-buffer)
-(global-set-key "\C-c\C-d" 'gdb)
 (global-set-key "\C-c\C-c" 'comment-or-uncomment-region)
+(global-set-key "\C-x\C-l" 'revert-buffer)
+(global-set-key "\C-c\t" 'toggle-truncate-lines)
+(global-set-key "\C-t" 'other-window)
+(global-set-key "\C-c\C-d" 'gdb)
+(global-set-key "\C-c\M-h" 'help-command)
+(global-set-key "\C-c\q" 'quickrun)
+
 
 ;; window移動
 (setq windmove-wrap-around t)
@@ -227,6 +261,8 @@
 
 ;; -----------------------------------------------------------------
 ;; @ C/C++
+
+(require 'cc-mode)
 
 (defun my-c-mode-common-hook ()
   (c-set-style "stroustrup")
@@ -244,7 +280,9 @@
       (append '(("\\.h$" . c++-mode))
               auto-mode-alist))
 
-
+;; C++11モードのシンタックスハイライトを有効
+(require 'modern-cpp-font-lock)
+(modern-c++-font-lock-global-mode t)
 
 ;;
 ;; for text-mode
@@ -255,7 +293,6 @@
 ;	 (auto-fill-mode 1)))
 ;; auto-fill-mode では、各行を 70 文字以内に詰める
 (set-default 'fill-column 60)
-
 
 
 ;; -----------------------------------------------------------------
@@ -326,9 +363,9 @@
 ;;; ソースコードにおいてM-p/M-nでシンボル間を移動
 (add-hook 'prog-mode-hook 'highlight-symbol-nav-mode)
 ;;; シンボル置換
-(global-set-key (kbd "C-c h s") 'highlight-symbol-at-point)
-(global-set-key (kbd "C-c h r") 'highlight-symbol-query-replace)
-(global-set-key (kbd "C-c h d") 'highlight-symbol-remove-all)
+(global-set-key (kbd "C-c l s") 'highlight-symbol-at-point)
+(global-set-key (kbd "C-c l r") 'highlight-symbol-query-replace)
+(global-set-key (kbd "C-c l d") 'highlight-symbol-remove-all)
 
 
 ;; easy-kill
@@ -424,10 +461,10 @@
 (setq helm-gtags-auto-update t)
   (add-hook 'helm-gtags-mode-hook
             '(lambda ()
-               (local-set-key (kbd "M-t") 'helm-gtags-find-tag)
+               (local-set-key (kbd "M-.") 'helm-gtags-dwim)
                (local-set-key (kbd "M-r") 'helm-gtags-find-rtag)
                (local-set-key (kbd "M-s") 'helm-gtags-find-symbol)
-               (local-set-key (kbd "C-t") 'helm-gtags-pop-stack)))
+               (local-set-key (kbd "M-,") 'helm-gtags-pop-stack)))
   (add-hook 'c++-mode-hook 'helm-gtags-mode)
 
 
@@ -562,6 +599,7 @@
      (when (locate-library "flycheck-irony")
        (flycheck-irony-setup))))
 
+
 ;; ;; dump-jump
 ;; (require 'dumb-jump)
 ;; (setq dumb-jump-mode t)
@@ -570,14 +608,12 @@
 ;; (define-key global-map (kbd "C-c b") 'dumb-jump-back)
 
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   (quote
-    ("3629b62a41f2e5f84006ff14a2247e679745896b5eaa1d5bcfbc904a3441b0cd" "a49760e39bd7d7876c94ee4bf483760e064002830a63e24c2842a536c6a52756" "a1289424bbc0e9f9877aa2c9a03c7dfd2835ea51d8781a0bf9e2415101f70a7e" "0b7ee9bac81558c11000b65100f29b09488ff9182c083fb303c7f13fd0ec8d2b" default)))
- '(package-selected-packages
-   (quote
-    (package-utils atom-dark-theme undo-tree multi-term irony-eldoc helm-swoop helm-rtags helm-git-grep helm-flycheck helm-c-yasnippet flycheck-irony elscreen company-rtags company-irony-c-headers company-irony cmake-mode cmake-ide c-eldoc auto-complete auto-compile ace-jump-mode ace-isearch))))
+;; cmake-ide
+(require 'cmake-ide)
+(cmake-ide-setup)
+(global-set-key "\C-c\c\c" 'cmake-ide-compile)
+
+
+;; disaster
+(require 'disaster)
+(define-key c-mode-base-map (kbd "C-c d") 'disaster)
