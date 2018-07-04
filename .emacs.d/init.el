@@ -56,6 +56,7 @@
     modern-cpp-font-lock
     monokai-theme
     multi-term
+    rtags
     undo-tree
     undohist
     yasnippet)
@@ -186,8 +187,9 @@
 ;;(setq hl-line-face 'underline)  ;; underline
 
 ; 1行ずつスクロール
-(setq scroll-conservatively 35
-      scroll-margin 20
+(setq scroll-conservatively 0;;35
+      scroll-margin 0;;20
+      scroll-aggre 1
       scroll-step 1)
 (setq comint-scroll-show-maximum-output t) ;; shell-mode
 
@@ -226,7 +228,64 @@
     (package-utils atom-dark-theme undo-tree multi-term irony-eldoc helm-swoop helm-rtags helm-git-grep helm-flycheck helm-c-yasnippet flycheck-irony elscreen company-rtags company-irony-c-headers company-irony cmake-mode cmake-ide c-eldoc auto-complete auto-compile ace-jump-mode ace-isearch))))
 
 ;; gdb
-(setq gdb-many-windows t)
+;;(setq gdb-many-windows t)
+;; ((setq gdb-many-windows nil)
+
+(defun set-gdb-layout(&optional c-buffer)
+  (if (not c-buffer)
+      (setq c-buffer (window-buffer (selected-window)))) ;; save current buffer
+
+  ;; from http://stackoverflow.com/q/39762833/846686
+  (set-window-dedicated-p (selected-window) nil) ;; unset dedicate state if needed
+  (switch-to-buffer gud-comint-buffer)
+  (delete-other-windows) ;; clean all
+
+  (let* (
+         (w-gdb (selected-window)) ;; left top
+         (w-stack (split-window w-gdb (floor(* 0.85 (window-body-height))) 'below)) ;; left bottom
+         (w-source (split-window w-gdb nil 'right)) ;; right top
+         (w-io (split-window w-gdb (floor(* 0.5 (window-body-height))) 'below)) ;; left middle
+         (w-breakpoints (split-window w-stack nil 'right)) ;; right bottom
+         )
+         ;; (w-source (selected-window)) ;; left top
+         ;; (w-gdb (split-window w-source nil 'right)) ;; right bottom
+         ;; (w-locals (split-window w-gdb nil 'above)) ;; right middle bottom
+         ;; (w-stack (split-window w-locals nil 'above)) ;; right middle top
+         ;; (w-breakpoints (split-window w-stack nil 'above)) ;; right top
+         ;; (w-io (split-window w-source (floor(* 0.7 (window-body-height)))
+         ;;                     'below)) ;; left bottom
+         ;; )
+    (set-window-buffer w-io (gdb-get-buffer-create 'gdb-inferior-io))
+    (set-window-dedicated-p w-io t)
+    (set-window-buffer w-breakpoints (gdb-get-buffer-create 'gdb-breakpoints-buffer))
+    (set-window-dedicated-p w-breakpoints t)
+    ;; (set-window-buffer w-locals (gdb-get-buffer-create 'gdb-locals-buffer))
+    ;; (set-window-dedicated-p w-locals t)
+    (set-window-buffer w-stack (gdb-get-buffer-create 'gdb-stack-buffer))
+    (set-window-dedicated-p w-stack t)
+
+    (set-window-buffer w-gdb gud-comint-buffer)
+
+    (select-window w-source)
+    (set-window-buffer w-source c-buffer)
+    ))
+
+(defadvice gdb (around args activate)
+  "Change the way to gdb works."
+  (setq global-config-editing (current-window-configuration)) ;; to restore: (set-window-configuration c-editing)
+  (let (
+        (c-buffer (window-buffer (selected-window))) ;; save current buffer
+        )
+    ad-do-it
+    (set-gdb-layout c-buffer))
+  )
+
+(defadvice gdb-reset (around args activate)
+  "Change the way to gdb exit."
+  ad-do-it
+  (set-window-configuration global-config-editing))
+
+(add-hook 'gdb-mode-hook '(lambda () (gud-tooltip-mode t)))
 
 
 ;; -----------------------------------------------------------------
@@ -455,41 +514,6 @@
     '(define-key helm-map (kbd "C-c g") 'helm-git-grep-from-helm))
 
 
-;; gtags
-;;(with-eval-after-load 'helm-gtags
-(require 'helm-gtags)
-(setq helm-gtags-auto-update t)
-  (add-hook 'helm-gtags-mode-hook
-            '(lambda ()
-               (local-set-key (kbd "M-.") 'helm-gtags-dwim)
-               (local-set-key (kbd "M-r") 'helm-gtags-find-rtag)
-               (local-set-key (kbd "M-s") 'helm-gtags-find-symbol)
-               (local-set-key (kbd "M-,") 'helm-gtags-pop-stack)))
-  (add-hook 'c++-mode-hook 'helm-gtags-mode)
-
-
-
-;; ;; rtags
-;; (require 'rtags)
-;; (require 'company-rtags)
-
-;; (setq rtags-completions-enabled t)
-;; (setq rtags-autostart-diagnostics t)
-;; (rtags-enable-standard-keybindings)
-
-;; (require 'helm-rtags)
-;; (setq rtags-use-helm t)
-
-;; (when (require 'rtags nil 'noerror)
-;;   (add-hook 'c-mode-common-hook
-;;             (lambda ()
-;;               (when (rtags-is-indexed)
-;;                 (local-set-key (kbd "M-.") 'rtags-find-symbol-at-point)
-;;                 (local-set-key (kbd "M-[") 'rtags-find-references)
-;;                 (local-set-key (kbd "M-]") 'rtags-find-symbol)
-;;                 (local-set-key (kbd "M-,") 'rtags-location-stack-back)))))
-
-
 ;; yasnippet
 (require 'yasnippet)
 (setq yas-snippet-dirs
@@ -578,6 +602,7 @@
   ;; (global-company-mode 1)
 )
 
+
 ;; flycheck
 (require 'flycheck)
 ;; Force flycheck to always use c++11 support. We use
@@ -606,6 +631,41 @@
 ;; (define-key global-map (kbd "C-c j") 'dumb-jump-go)
 ;; (define-key global-map (kbd "C-c o") 'dumb-jump-go-other-window)
 ;; (define-key global-map (kbd "C-c b") 'dumb-jump-back)
+
+
+;; gtags
+;;(with-eval-after-load 'helm-gtags
+(require 'helm-gtags)
+(setq helm-gtags-auto-update t)
+  (add-hook 'helm-gtags-mode-hook
+            '(lambda ()
+               (local-set-key (kbd "M-.") 'helm-gtags-dwim)
+               (local-set-key (kbd "M-r") 'helm-gtags-find-rtag)
+               (local-set-key (kbd "M-s") 'helm-gtags-find-symbol)
+               (local-set-key (kbd "M-,") 'helm-gtags-pop-stack)))
+  (add-hook 'c++-mode-hook 'helm-gtags-mode)
+
+
+
+;; ;; rtags
+;; (require 'rtags)
+;; ;; (require 'company-rtags)
+
+;; ;; (setq rtags-completions-enabled t)
+;; (setq rtags-autostart-diagnostics t)
+;; (rtags-enable-standard-keybindings)
+
+;; (require 'helm-rtags)
+;; (setq rtags-use-helm t)
+
+;; (when (require 'rtags nil 'noerror)
+;;   (add-hook 'c-mode-common-hook
+;;             (lambda ()
+;;               (when (rtags-is-indexed)
+;;                 (local-set-key (kbd "M-.") 'rtags-find-symbol-at-point)
+;;                 (local-set-key (kbd "M-r") 'rtags-find-references)
+;;                 (local-set-key (kbd "M-s") 'rtags-find-symbol)
+;;                 (local-set-key (kbd "M-,") 'rtags-location-stack-back)))))
 
 
 ;; cmake-ide
