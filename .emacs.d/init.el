@@ -187,9 +187,8 @@
 ;;(setq hl-line-face 'underline)  ;; underline
 
 ; 1行ずつスクロール
-(setq scroll-conservatively 0;;35
-      scroll-margin 0;;20
-      scroll-aggre 1
+(setq scroll-conservatively 35
+      scroll-margin 20
       scroll-step 1)
 (setq comint-scroll-show-maximum-output t) ;; shell-mode
 
@@ -436,16 +435,17 @@
 (require 'magit)
 (require 'magit-lfs)
 (global-set-key (kbd "C-x g") 'magit-status)
-(custom-set-faces
+ ;; (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(magit-diff-added ((t (:background "black" :foreground "green"))))
- '(magit-diff-added-highlight ((t (:background "white" :foreground "green"))))
- '(magit-diff-removed ((t (:background "black" :foreground "blue"))))
- '(magit-diff-removed-hightlight ((t (:background "white" :foreground "blue"))))
- '(magit-hash ((t (:foreground "red")))))
+ ;; '(magit-diff-added ((t (:background "black" :foreground "green"))))
+ ;; '(magit-diff-added-highlight ((t (:background "white" :foreground "green"))))
+ ;; '(magit-diff-removed ((t (:background "black" :foreground "blue"))))
+ ;; '(magit-diff-removed-hightlight ((t (:background "white" :foreground "blue"))))
+ ;; '(magit-hash ((t (:foreground "red")))))
+(setq magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
 
 
 ;; helm
@@ -671,9 +671,15 @@
 ;; cmake-ide
 (require 'cmake-ide)
 (cmake-ide-setup)
-(global-set-key "\C-c\c\c" 'cmake-ide-compile)
+(global-set-key "\C-c\m" 'cmake-ide-compile)
 
 
 ;; disaster
 (require 'disaster)
 (define-key c-mode-base-map (kbd "C-c d") 'disaster)
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
