@@ -17,6 +17,9 @@
 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (package-initialize)
 
+;; If package not found, execute the command
+;; M-x package-refresh-contents
+
 ;; パッケージリスト
 (defvar package-list
   '(ace-jump-mode
@@ -24,12 +27,14 @@
     anzu
     auto-compile
     auto-complete
+    avy-migemo
     c-eldoc
     cmake-ide
     cmake-mode
     company-irony
     company-irony-c-headers
-    company-rtags
+    counsel
+    counsel-gtags
     disaster
     dumb-jump
     easy-kill
@@ -39,6 +44,7 @@
     flycheck-irony
     git-gutter
     helm
+    helm-ag
     helm-c-yasnippet
     helm-elscreen
     helm-flycheck
@@ -50,14 +56,19 @@
     hiwin
     irony
     irony-eldoc
+    ivy
     magit
     magit-lfs
     modern-cpp-font-lock
     monokai-theme
     multi-term
-    rtags
+    multiple-cursors
+    powerline
+    smooth-scroll
     undo-tree
     undohist
+    wgrep
+    which-key
     yasnippet)
   "packages to be installed")
 
@@ -158,7 +169,7 @@
 ;; @ visual
 
 ;; theme
-(load-theme 'monokai )t
+(load-theme 'monokai t)
 
 ;; ツールバー非表示
 (tool-bar-mode -1)
@@ -185,7 +196,7 @@
 (global-hl-line-mode t)  ;; highlight
 ;;(setq hl-line-face 'underline)  ;; underline
 
-; 1行ずつスクロール
+;; ; 1行ずつスクロール
 (setq scroll-conservatively 35
       scroll-margin 20
       scroll-step 1)
@@ -218,12 +229,20 @@
  '(anzu-deactivate-region t)
  '(anzu-mode-lighter "")
  '(anzu-search-threshold 1000)
+ '(avy-migemo-function-names
+   (quote
+    (swiper--add-overlays-migemo
+     (swiper--re-builder :around swiper--re-builder-migemo-around)
+     (ivy--regex :around ivy--regex-migemo-around)
+     (ivy--regex-ignore-order :around ivy--regex-ignore-order-migemo-around)
+     (ivy--regex-plus :around ivy--regex-plus-migemo-around)
+     ivy--highlight-default-migemo ivy-occur-revert-buffer-migemo ivy-occur-press-migemo avy-migemo-goto-char avy-migemo-goto-char-2 avy-migemo-goto-char-in-line avy-migemo-goto-char-timer avy-migemo-goto-subword-1 avy-migemo-goto-word-1 avy-migemo-isearch avy-migemo-org-goto-heading-timer avy-migemo--overlay-at avy-migemo--overlay-at-full)))
  '(custom-safe-themes
    (quote
-    ("3629b62a41f2e5f84006ff14a2247e679745896b5eaa1d5bcfbc904a3441b0cd" "a49760e39bd7d7876c94ee4bf483760e064002830a63e24c2842a536c6a52756" "a1289424bbc0e9f9877aa2c9a03c7dfd2835ea51d8781a0bf9e2415101f70a7e" "0b7ee9bac81558c11000b65100f29b09488ff9182c083fb303c7f13fd0ec8d2b" default)))
+    ("bd7b7c5df1174796deefce5debc2d976b264585d51852c962362be83932873d9" "3629b62a41f2e5f84006ff14a2247e679745896b5eaa1d5bcfbc904a3441b0cd" "a49760e39bd7d7876c94ee4bf483760e064002830a63e24c2842a536c6a52756" "a1289424bbc0e9f9877aa2c9a03c7dfd2835ea51d8781a0bf9e2415101f70a7e" "0b7ee9bac81558c11000b65100f29b09488ff9182c083fb303c7f13fd0ec8d2b" default)))
  '(package-selected-packages
    (quote
-    (package-utils atom-dark-theme undo-tree multi-term irony-eldoc helm-swoop helm-rtags helm-git-grep helm-flycheck helm-c-yasnippet flycheck-irony elscreen company-rtags company-irony-c-headers company-irony cmake-mode cmake-ide c-eldoc auto-complete auto-compile ace-jump-mode ace-isearch))))
+    (avy-migemo multiple-cursors clang-format package-utils atom-dark-theme undo-tree multi-term irony-eldoc helm-git-grep helm-flycheck helm-c-yasnippet flycheck-irony elscreen company-rtags company-irony-c-headers company-irony cmake-mode cmake-ide c-eldoc auto-complete auto-compile ace-jump-mode ace-isearch))))
 
 ;; gdb
 ;;(setq gdb-many-windows t)
@@ -352,6 +371,19 @@
 (set-default 'fill-column 60)
 
 
+;; ----------------------------------------------------------------
+;; for LLVM
+;; Add a cc-mode style for editing LLVM C and C++ code
+(c-add-style "llvm.org"
+             '("gnu"
+	       (fill-column . 80)
+	       (c++-indent-level . 2)
+	       (c-basic-offset . 2)
+	       (indent-tabs-mode . nil)
+	       (c-offsets-alist . ((arglist-intro . ++)
+				   (innamespace . 0)
+				   (member-init-intro . ++)))))
+
 ;; -----------------------------------------------------------------
 ;; @elscreen
 
@@ -397,12 +429,25 @@
 ;; 起動直後のスクリーン番号が 1 番になるように
 (add-hook 'after-init-hook 'my-elscreen-kill-0)
 
+(require 'elscreen-color-theme)
+
 (elscreen-start)
+
+
+;; ;; smooth-scroll
+;; (require 'smooth-scroll)
+;; (smooth-scroll-mode t)
+
 
 ;; undo-tree
 (require 'undo-tree)
 (global-undo-tree-mode t)
 (global-set-key (kbd "M-/") 'undo-tree-redo)
+
+
+;; which-key
+;; (which-key-setup-side-window-bottom)  ;; ミニバッファに表示
+(which-key-mode 1)
 
 
 ;; undohist
@@ -423,6 +468,82 @@
 (global-set-key (kbd "C-c l s") 'highlight-symbol-at-point)
 (global-set-key (kbd "C-c l r") 'highlight-symbol-query-replace)
 (global-set-key (kbd "C-c l d") 'highlight-symbol-remove-all)
+
+
+;; powerline
+(require 'powerline)
+(require 'monokai-theme)
+
+(set-face-attribute 'powerline-active0 nil
+                    :foreground monokai-violet
+                    :background monokai-gray
+                    :box nil)
+
+(set-face-attribute 'powerline-active2 nil
+                    :foreground monokai-foreground
+                    :background monokai-red
+                    :box nil
+                    :bold t)
+
+(set-face-attribute 'powerline-inactive2 nil
+                    :bold t)
+
+
+(defun powerline-my-theme ()
+  "Setup the my mode-line."
+  (interactive)
+  (setq powerline-current-separator 'utf-8)
+  (setq-default mode-line-format
+                '("%e"
+                  (:eval
+                   (let* ((active (powerline-selected-window-active))
+                          (mode-line-buffer-id (if active 'mode-line-buffer-id 'mode-line-buffer-id-inactive))
+                          (mode-line (if active 'mode-line 'mode-line-inactive))
+                          (face0 (if active 'powerline-active0 'powerline-inactive1))
+                          (face1 (if active 'powerline-active2 'powerline-inactive2))
+                          (face2 (if active 'powerline-active1 'powerline-inactive1))
+                          (separator-left (intern (format "powerline-%s-%s"
+                                                          (powerline-current-separator)
+                                                          (car powerline-default-separator-dir))))
+                          (separator-right (intern (format "powerline-%s-%s"
+                                                           (powerline-current-separator)
+                                                           (cdr powerline-default-separator-dir))))
+                          (lhs (list (powerline-major-mode face0 'l)
+                                     (powerline-raw " " face0)
+                                     (funcall separator-left face0 face1)
+                                     (powerline-buffer-id face1 'l)
+                                     (powerline-raw " " face1)
+                                     ;; (when (and (boundp 'which-func-mode) which-func-mode)
+                                     ;;   (powerline-raw which-func-format face1 'l))
+                                     (funcall separator-left face1 face2)
+                                     (powerline-vc face2 'l)
+                                     ))
+                          (rhs (list (when powerline-display-mule-info
+                                       (powerline-raw mode-line-mule-info face2 'r))
+                                     (funcall separator-right face2 face1)
+                                     (powerline-raw " " face1 'r)
+                                     (unless window-system
+                                       (powerline-raw (char-to-string #xe0a1) face1 'r))
+                                     (powerline-raw "%5l" face1 'r)
+                                     (powerline-raw ":" face1 'r)
+                                     (powerline-raw "%3c" face1 'r)
+                                     (funcall separator-right face1 face0)
+                                     (powerline-raw " " face0 'r)
+                                     (powerline-raw "%6p" face0 'r)
+                                     (powerline-raw " " face0 'r)
+                                     )))
+                     (concat (powerline-render lhs)
+                             (powerline-fill face2 (powerline-width rhs))
+                             (powerline-render rhs)))))))
+
+(powerline-my-theme)
+
+
+(require 'multiple-cursors)
+(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 
 
 ;; easy-kill
@@ -450,6 +571,7 @@
 ;; helm
 (require 'helm)
 (require 'helm-config)
+(require 'helm-ag)
 (require 'helm-swoop)
 
 ;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs.
@@ -462,9 +584,18 @@
 (global-set-key (kbd "C-x b") 'helm-mini)
 (global-set-key (kbd "C-x C-f") 'helm-find-files)
 (global-set-key (kbd "M-y") 'helm-show-kill-ring)
+(setq helm-ag-base-command "ag --nocolor --nogroup --ignore-case")
+(setq helm-ag-thing-at-point 'symbol)
+(global-set-key (kbd "C-c a") 'helm-ag)
 (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebind tab to run persistent action
 (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB work in terminal
 (define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
+
+;; '.' '..' を除外する
+(advice-add 'helm-ff-filter-candidate-one-by-one
+        :around (lambda (fcn file)
+                  (unless (string-match "\\(?:/\\|\\`\\)\\.\\{1,2\\}\\'" file)
+                    (funcall fcn file))))
 
 (when (executable-find "curl")
   (setq helm-google-suggest-use-curl-p t))
@@ -633,7 +764,19 @@
 
 
 ;; gtags
-;;(with-eval-after-load 'helm-gtags
+;; ;;; counsel-gtags
+;; (require 'counsel-gtags)
+;; (setq counsel-gtags-auto-update t)
+;;   (add-hook 'counsel-gtags-mode-hook
+;;             '(lambda ()
+;;                (local-set-key (kbd "M-.") 'counsel-gtags-dwim)
+;;                (local-set-key (kbd "M-r") 'counsel-gtags-find-rtag)
+;;                (local-set-key (kbd "M-s") 'counsel-gtags-find-symbol)
+;;                (local-set-key (kbd "M-,") 'counsel-gtags-pop-stack)))
+;; (add-hook 'c-mode-hook 'counsel-gtags-mode)
+;; (add-hook 'c++-mode-hook 'counsel-gtags-mode)
+
+;;; helm-gtags
 (require 'helm-gtags)
 (setq helm-gtags-auto-update t)
   (add-hook 'helm-gtags-mode-hook
@@ -642,15 +785,14 @@
                (local-set-key (kbd "M-r") 'helm-gtags-find-rtag)
                (local-set-key (kbd "M-s") 'helm-gtags-find-symbol)
                (local-set-key (kbd "M-,") 'helm-gtags-pop-stack)))
-  (add-hook 'c++-mode-hook 'helm-gtags-mode)
+(add-hook 'c++-mode-hook 'helm-gtags-mode)
 
-
-
-;; ;; rtags
+;; rtags
+;; (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/rtags/")
 ;; (require 'rtags)
-;; ;; (require 'company-rtags)
+;; (require 'company-rtags)
 
-;; ;; (setq rtags-completions-enabled t)
+;; (setq rtags-completions-enabled t)
 ;; (setq rtags-autostart-diagnostics t)
 ;; (rtags-enable-standard-keybindings)
 
@@ -660,18 +802,46 @@
 ;; (when (require 'rtags nil 'noerror)
 ;;   (add-hook 'c-mode-common-hook
 ;;             (lambda ()
-;;               (when (rtags-is-indexed)
+;;               ;; (when (rtags-is-indexed)
 ;;                 (local-set-key (kbd "M-.") 'rtags-find-symbol-at-point)
 ;;                 (local-set-key (kbd "M-r") 'rtags-find-references)
 ;;                 (local-set-key (kbd "M-s") 'rtags-find-symbol)
-;;                 (local-set-key (kbd "M-,") 'rtags-location-stack-back)))))
+;;                 (local-set-key (kbd "M-,") 'rtags-location-stack-back))))
 
 
-;; cmake-ide
+;; ;; ivy
+;; (require 'ivy)
+;; (ivy-mode 1)
+;; (setq ivy-use-virtual-buffers t)
+;; (setq enable-recursive-minibuffers t)
+;; (setq ivy-height 30) ;; minibufferのサイズを拡大！（重要）
+;; (setq ivy-extra-directories nil)
+;; (setq ivy-re-builders-alist
+;;       '((t . ivy--regex-plus)))
+
+;; ;; counsel
+;; (global-set-key (kbd "M-x") 'counsel-M-x)
+;; (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+;; (global-set-key (kbd "C-c g") 'counsel-git-grep)
+;; (defvar counsel-find-file-ignore-regexp (regexp-opt '("./" "../")))
+
+
+;; swiper
+(global-set-key "\C-s" 'swiper)
+(defvar swiper-include-line-number-in-search t) ;; line-numberでも検索可能
+
+;; migemo + swiper
+;(require 'avy-migemo)
+;(avy-migemo-mode 1)
+;(require 'avy-migemo-e.g.swiper)
+
 (require 'cmake-ide)
 (cmake-ide-setup)
 (global-set-key "\C-c\m" 'cmake-ide-compile)
-
+(setq cmake-ide-header-search-other-file nil)
+(setq cmake-ide-header-search-first-including nil)
+;; (setq cmake-ide-rdm-executable "/usr/local/bin/rdm")
+;; (setq cmake-ide-rc-executable "/usrlocal/bin/rc")
 
 ;; disaster
 (require 'disaster)

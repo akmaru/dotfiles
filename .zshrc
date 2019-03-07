@@ -44,7 +44,7 @@ if is-at-least 4.3.10; then
 fi
 
 
-bindkey "^?" backward-delete-char
+# bindkey "^?" backward-delete-char
 
 
 # hooks 設定
