@@ -29,10 +29,12 @@
     auto-complete
     avy-migemo
     c-eldoc
+    clang-format
     cmake-ide
     cmake-mode
     company-irony
     company-irony-c-headers
+    company-lsp
     counsel
     counsel-gtags
     disaster
@@ -57,6 +59,8 @@
     irony
     irony-eldoc
     ivy
+    lsp-mode
+    lsp-ui
     magit
     magit-lfs
     modern-cpp-font-lock
@@ -852,3 +856,9 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
+
+
+;; (require 'lsp)
+;; (require 'lsp-clients)
+;; (add-hook 'c++-mode-hook 'lsp)
