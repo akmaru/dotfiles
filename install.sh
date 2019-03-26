@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -x
 
 # zsh
 ln -sf ~/dotfiles/.zshrc ~/.zshrc
@@ -12,13 +12,13 @@ ln -sf ~/dotfiles/.gitconfig ~/.gitconfig
 
 # rtags
 git clone --recursive https://github.com/Andersbakken/rtags.git
-cd rtags
-mkdir build
-cd build
-cmake ..
-make
-make install
-cd ../../
+# cd rtags
+# mkdir build
+# cd build
+# cmake ..
+# make
+# make install
+# cd ../../
 
 # emacs
 mkdir -p ~/.emacs.d

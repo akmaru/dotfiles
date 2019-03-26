@@ -460,8 +460,8 @@
 
 
 ;; smartparens
-(require 'smartparens-config)
-(smartparens-global-mode t)
+;; (require 'smartparens-config)
+;; (smartparens-global-mode t)
 
 
 ;; highlight-symbol
@@ -557,7 +557,7 @@
 
 ;; magit
 (require 'magit)
-(require 'magit-lfs)
+;; (require 'magit-lfs)
 (global-set-key (kbd "C-x g") 'magit-status)
  ;; (custom-set-faces
  ;; custom-set-faces was added by Custom.

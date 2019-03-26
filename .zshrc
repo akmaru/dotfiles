@@ -473,5 +473,3 @@ fshow() {
                 {}
 FZF-EOF"
 }
-
-eval `tset -s xterm-24bits`
