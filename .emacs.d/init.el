@@ -34,11 +34,13 @@
     cmake-mode
     company-irony
     company-irony-c-headers
+    company-racer
     company-rtags
     easy-kill
     elscreen
     flycheck
     flycheck-irony
+    flycheck-rust
     helm
     helm-c-yasnippet
     helm-flycheck
@@ -54,7 +56,10 @@
     magit-lfs
     monokai-theme
     multi-term
+    quickrun
+    racer
     rtags
+    rust-mode
     smartparens
     undo-tree
     undohist
@@ -264,6 +269,18 @@
 
 ;; -----------------------------------------------------------------
 ;; @packages
+
+
+;; rust-mode
+(setq racer-rust-src-path "/Users/akira.maruoka/.rustup/toolchains/stable-x86_64-apple-darwin/lib/rustlib/src/rust/src")
+(setq racer-cmd "/Users/akira.maruoka/.cargo/bin/racer")
+(eval-after-load "rust-mode" '(require 'racer))
+
+(add-hook 'rust-mode-hook
+  '(lambda ()
+     (racer-activate)
+     (local-set-key (kbd "M-.") #'racer-find-definition)
+     (local-set-key (kbd "TAB") #'racer-complete-or-indent)))
 
 
 ;; ace-isearch
