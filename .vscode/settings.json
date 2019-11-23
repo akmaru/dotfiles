@@ -1,0 +1,20 @@
+{
+    "workbench.colorTheme": "Monokai",
+    "editor.fontFamily": "Ricty Diminished",
+    "window.zoomLevel": 0,
+    "editor.lineHeight": 16,
+    "workbench.iconTheme": "Monokai Classic Icons",
+    "editor.renderControlCharacters": true,
+    "breadcrumbs.enabled": true,
+    "workbench.startupEditor": "newUntitledFile",
+    "workbench.commandPalette.history": 100000,
+    "editor.find.addExtraSpaceOnTop": false,
+    "editor.find.autoFindInSelection": true,
+    "editor.fontSize": 14,
+    "editor.minimap.enabled": false,
+    "[vue]": {
+        "editor.tabSize":2
+    },
+    "cmake.configureOnOpen": true,
+    "C_Cpp.updateChannel": "Insiders"
+}
