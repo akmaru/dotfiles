@@ -1,17 +1,36 @@
-#!/bin/sh -x
+#!/bin/sh -ex
 
-# zsh
+source util/detect_os.sh
+OS=`detect_os`
+
+if [ $OS == "Mac" ]; then
+  source install_mac.sh
+fi
+
+## zsh
 ln -sf ~/dotfiles/.zshrc ~/.zshrc
 curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh \| zsh
 
-# tmux
+
+## tmux
 ln -sf ~/dotfiles/.tmux.conf ~/.tmux.conf
 
-# git
+
+## git
 ln -sf ~/dotfiles/.gitconfig ~/.gitconfig
 
-# rtags
-git clone --recursive https://github.com/Andersbakken/rtags.git
+
+## nvim
+mkdir -p ~/.config/nvim
+ln -sf ~/dotfiles/nvim/init.vim ~/.config/nvim/init.vim
+
+
+## emacs
+mkdir -p ~/.emacs.d
+ln -sf ~/dotfiles/.emacs.d/init.el ~/.emacs.d/init.el
+
+### rtags
+# git clone --recursive https://github.com/Andersbakken/rtags.git
 # cd rtags
 # mkdir build
 # cd build
@@ -20,14 +39,16 @@ git clone --recursive https://github.com/Andersbakken/rtags.git
 # make install
 # cd ../../
 
-# nvim
-mkdir -p ~/.config/nvim
-ln -sf ~/dotfiles/nvim/init.vim ~/.config/nvim/init.vim
 
-# emacs
-mkdir -p ~/.emacs.d
-ln -sf ~/dotfiles/.emacs.d/init.el ~/.emacs.d/init.el
+## VSCode
+cd .vscode && . install_vscode.sh && cd ../
 
-# ssh
+
+## ssh
 mkdir -p ~/.ssh
 ln -sf ~/dotfiles/.ssh/config ~/.ssh/config
+
+
+## Languages
+### Rust
+. install_rust.sh

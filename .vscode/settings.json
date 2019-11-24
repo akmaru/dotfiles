@@ -1,20 +1,32 @@
 {
-    "workbench.colorTheme": "Monokai",
-    "editor.fontFamily": "Ricty Diminished",
-    "window.zoomLevel": 0,
-    "editor.lineHeight": 16,
-    "workbench.iconTheme": "Monokai Classic Icons",
-    "editor.renderControlCharacters": true,
-    "breadcrumbs.enabled": true,
-    "workbench.startupEditor": "newUntitledFile",
-    "workbench.commandPalette.history": 100000,
+    // Editor
     "editor.find.addExtraSpaceOnTop": false,
     "editor.find.autoFindInSelection": true,
+    "editor.fontFamily": "Ricty Diminished for Powerline",
     "editor.fontSize": 14,
+    "editor.lineHeight": 16,
     "editor.minimap.enabled": false,
+    "editor.renderControlCharacters": true,
+    "editor.tabSize": 2,
+
+    // Theme
+    "workbench.colorTheme": "Monokai Pro (Filter Spectrum)",
+    "workbench.iconTheme": "Monokai Pro (Filter Spectrum) Icons",
+    
+    "breadcrumbs.enabled": true,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "window.zoomLevel": 0,
+    "workbench.startupEditor": "newUntitledFile",
+    "workbench.commandPalette.history": 100000,
+    
+    // Languages
+    /// C/C++
+    "cmake.configureOnOpen": true,
+    "C_Cpp.updateChannel": "Insiders",
+
+    /// Vue.js
     "[vue]": {
         "editor.tabSize":2
-    },
-    "cmake.configureOnOpen": true,
-    "C_Cpp.updateChannel": "Insiders"
+    }
 }
