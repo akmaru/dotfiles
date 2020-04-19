@@ -5,28 +5,34 @@
     "editor.fontFamily": "Ricty Diminished for Powerline",
     "editor.fontSize": 14,
     "editor.lineHeight": 16,
-    "editor.minimap.enabled": false,
     "editor.renderControlCharacters": true,
     "editor.tabSize": 2,
-
     // Theme
     "workbench.colorTheme": "Monokai Pro (Filter Spectrum)",
     "workbench.iconTheme": "Monokai Pro (Filter Spectrum) Icons",
-    
     "breadcrumbs.enabled": true,
     "files.insertFinalNewline": true,
     "files.trimFinalNewlines": true,
-    "window.zoomLevel": 0,
+    "window.zoomLevel": 1,
     "workbench.startupEditor": "newUntitledFile",
     "workbench.commandPalette.history": 100000,
-    
     // Languages
     /// C/C++
     "cmake.configureOnOpen": true,
     "C_Cpp.updateChannel": "Insiders",
-
+    "C_Cpp.clang_format_style": "file",
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true,
     /// Vue.js
     "[vue]": {
-        "editor.tabSize":2
-    }
+        "editor.tabSize": 2
+    },
+    "[cpp]": {
+        "editor.defaultFormatter": "xaver.clang-format"
+    },
+    "C_Cpp.clang_format_fallbackStyle": "Google",
+    "workbench.editor.showTabs": true,
+    "keyboard.dispatch": "keyCode",
+    "workbench.editor.enablePreviewFromQuickOpen": false,
+    "workbench.editor.enablePreview": false
 }

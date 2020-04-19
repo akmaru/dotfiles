@@ -10,7 +10,7 @@ fi
 ## zsh
 ln -sf ~/dotfiles/.zshrc ~/.zshrc
 curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh \| zsh
-
+ln -sf ~/dotfiles/.p10k.zsh ~/.p10k.zsh
 
 ## tmux
 ln -sf ~/dotfiles/.tmux.conf ~/.tmux.conf

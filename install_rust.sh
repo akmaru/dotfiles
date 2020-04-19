@@ -4,10 +4,11 @@ echo "### Setup: Rust ###"
 
 rustup-init
 
-if [ -z `grep -c "## Rust" ~/.zshenv` ]; then
+EXIST_SOURCE=`grep -c "## Rust" ~/.zshenv`
+
+if [ -z "$EXIST_SOURCE" ]; then
   echo "\n\
 ## Rust \n\
-export CARGO_HOME=\"$HOME/.cargo\" \n\
-export PATH=\"$CARGO_HOME/bin:$PATH\" \n\
+source $HOME/.cargo/env \n\
 " >> ~/.zshenv
 fi
