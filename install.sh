@@ -1,11 +1,11 @@
 #!/bin/sh -ex
 
-source util/detect_os.sh
-OS=`detect_os`
+#source util/detect_os.sh
+#OS=`detect_os`
 
-if [ $OS == "Mac" ]; then
-  source install_mac.sh
-fi
+#if [ $OS == "Mac" ]; then
+#  source install_mac.sh
+#fi
 
 ## zsh
 ln -sf ~/dotfiles/.zshrc ~/.zshrc

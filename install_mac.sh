@@ -1,5 +1,7 @@
 #!/bin/sh -ex
 
+ln -sf ~/dotfiles/.gitconfig_mac ~/.gitconfig_os
+
 packages=("
   cmake \
   emacs \
