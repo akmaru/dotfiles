@@ -1,0 +1,55 @@
+[[plugins]]
+repo = 'tpope/vim-fugitive'
+
+[[plugins]]
+repo = 'airblade/vim-gitgutter'
+
+[[plugins]]
+repo = 'junegunn/fzf'
+build = './install --all'
+merged = 0
+
+[[plugins]]
+repo = "neoclide/coc.nvim"
+merged = 0
+rev = "release"
+hook_add = """
+  let g:coc_global_extensions = [ 
+  \ 'coc-clangd',
+  \ 'coc-cmake',
+  \ 'coc-css',
+  \ 'coc-git',
+  \ 'coc-go',
+  \ 'coc-html',
+  \ 'coc-json',
+  \ 'coc-markdownlint',
+  \ 'coc-python',
+  \ 'coc-rust-analyzer',
+  \ 'coc-sh',
+  \ 'coc-tsserver',
+  \ 'coc-vetur'
+  \ ]
+"""
+
+[[plugins]]
+repo = 'tomasr/molokai'
+hook_add = '''
+  colorscheme molokai
+  set t_Co=256
+'''
+
+[[plugins]]
+repo = 'vim-airline/vim-airline'
+depends = ['vim-airline-themes', 'vim-devicons', 'vim-fugitive']
+hook_add = '''
+  let g:airline_theme = 'molokai'
+  let g:airline#extensions#tabline#enabled = 1
+  let g:airline#extensions#tabline#buffer_idx_mode = 1
+  let g:airline_powerline_fonts = 1
+'''
+
+[[plugins]]
+repo = 'vim-airline/vim-airline-themes'
+
+[[plugins]]
+repo = 'ryanoasis/vim-devicons'
