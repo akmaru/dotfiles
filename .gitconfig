@@ -8,5 +8,9 @@
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
+
 [credential]
 	helper = osxkeychain
+
+[includeIf "gitdir:~/.ghq/github.com/Maru0137/"]
+	path = .gitconfig_dqrta
