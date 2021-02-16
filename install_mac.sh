@@ -1,5 +1,11 @@
 #!/bin/sh -ex
 
+# In advance, run the following commands to install homebrew and git.
+# /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+# brew install git
+
+ln -sf ~/dotfiles/.gitconfig_mac ~/.gitconfig_os
+
 packages=("
   cmake \
   emacs \
@@ -7,6 +13,7 @@ packages=("
   ghq \
   git-lfs \
   graphviz \
+  llvm \
   make \
   neovim \
   ninja \
@@ -16,20 +23,29 @@ packages=("
 ")
 
 cask_packages=("
+  alfred
+  bettersnaptool
+  bettertouchtool
   docker
+  google-japanese-ime
   google-chrome
-  handbrake
+  google-drive-file-stream
+  karabiner-elements
+  iterm2
+  slack
+  tunnelblock
+  visual-studio-code
+  xquartz
 ")
 
-# Update & upgrade
+# Update
 brew update
-brew upgrade
 
 # Install brew-cask
 brew cask
 
-# Install brew packages
+# Install packages
 brew install $packages
 
-# Install brew-cask packages
+# Install cask packages
 brew cask install $cask_packages
