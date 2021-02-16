@@ -2,8 +2,8 @@
 
 DOT_DIR=$(dirname $(readlink -f $0))
 
-source util/detect_os.sh
-OS=`detect_os`
+#source util/detect_os.sh
+#OS=`detect_os`
 
 if [ $OS == "Mac" ]; then
   source install_mac.sh

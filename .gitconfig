@@ -1,16 +1,27 @@
 [user]
 	name = Akira Maruoka
 	email = akmaru0266@gmail.com
+
 [core]
-	editor = emacs
+	editor = emacs -nw
+	excludesfile = "~/.gitignore"
+
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
 
-[credential]
-	helper = osxkeychain
+
+[include]
+	path = ~/.gitconfig_os
 
 [includeIf "gitdir:~/.ghq/github.com/Maru0137/"]
 	path = .gitconfig_dqrta
+
+[includeIf "gitdir:~/ghq/gitlab.fixstars.com/"]
+  path = ~/.gitconfig_fixstars
+
+[includeIf "gitdir:~/ghq/gl.fixstars.com/"]
+  path = ~/.gitconfig_fixstars
+
