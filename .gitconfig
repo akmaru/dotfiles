@@ -19,9 +19,8 @@
 [includeIf "gitdir:~/.ghq/github.com/Maru0137/"]
 	path = .gitconfig_dqrta
 
-[includeIf "gitdir:~/ghq/gitlab.fixstars.com/"]
+[includeIf "gitdir:~/.ghq/gitlab.fixstars.com/"]
   path = ~/.gitconfig_fixstars
 
-[includeIf "gitdir:~/ghq/gl.fixstars.com/"]
+[includeIf "gitdir:~/.ghq/gl.fixstars.com/"]
   path = ~/.gitconfig_fixstars
-

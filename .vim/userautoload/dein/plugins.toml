@@ -52,4 +52,19 @@ hook_add = '''
 repo = 'vim-airline/vim-airline-themes'
 
 [[plugins]]
+repo = 'scrooloose/nerdtree'
+hook_add = '''
+  let g:NERDTreeShowHidden= 1
+  let g:NERDTreeIgnore = [
+  \ '.[oa]$',
+  \ '.(so)$',
+  \ '.(tgz|gz|zip)$',
+  \ '.(git)$'
+  \ ]
+'''
+
+[[plugins]]
+repo = 'tomtom/tcomment_vim'
+
+[[plugins]]
 repo = 'ryanoasis/vim-devicons'

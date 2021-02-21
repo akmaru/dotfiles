@@ -31,9 +31,10 @@ cask_packages=("
   google-chrome
   google-drive-file-stream
   karabiner-elements
+  font-hackgen-nerd
   iterm2
   slack
-  tunnelblock
+  tunnelblick
   visual-studio-code
   xquartz
 ")
@@ -41,11 +42,8 @@ cask_packages=("
 # Update
 brew update
 
-# Install brew-cask
-brew cask
-
 # Install packages
 brew install $packages
 
 # Install cask packages
-brew cask install $cask_packages
+brew install --cask $cask_packages

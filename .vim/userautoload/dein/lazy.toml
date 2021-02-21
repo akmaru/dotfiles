@@ -6,3 +6,8 @@ hook_add = '''
   let g:deoplete#enable_smart_case = 1
   set completeopt+=noinsert
 '''
+
+[[plugins]]
+repo = 'puremourning/vimspector'
+on_ft = ['c', 'cpp', 'rust', 'python', 'javascript', 'go']
+build = './install_gadget.py --all --force-enable-rust --force-enable-node --enable-go --enable-bash '

@@ -39,35 +39,6 @@
     "when": "editorTextFocus && !editorReadonly"
   },
   {
-    "key": "ctrl+.",
-    "command": "editor.action.peekDeclaration"
-  },
-  {
-    "key": "alt+.",
-    "command": "editor.action.peekDefinition",
-    "when": "editorHasDefinitionProvider && editorTextFocus && !inReferenceSearchEditor && !isInEmbeddedEditor"
-  },
-  {
-    "key": "alt+f12",
-    "command": "-editor.action.peekDefinition",
-    "when": "editorHasDefinitionProvider && editorTextFocus && !inReferenceSearchEditor && !isInEmbeddedEditor"
-  },
-  {
-    "key": "alt+r",
-    "command": "editor.action.referenceSearch.trigger",
-    "when": "editorHasReferenceProvider && editorTextFocus && !inReferenceSearchEditor && !isInEmbeddedEditor"
-  },
-  {
-    "key": "shift+f12",
-    "command": "-editor.action.referenceSearch.trigger",
-    "when": "editorHasReferenceProvider && editorTextFocus && !inReferenceSearchEditor && !isInEmbeddedEditor"
-  },
-  {
-    "key": "alt+f12",
-    "command": "-editor.action.peekDefinition",
-    "when": "editorHasDefinitionProvider && editorTextFocus && !inReferenceSearchEditor && !isInEmbeddedEditor"
-  },
-  {
     "key": "ctrl+c ctrl+r",
     "command": "editor.action.rename",
     "when": "editorHasRenameProvider && editorTextFocus && !editorReadonly"
@@ -76,38 +47,6 @@
     "key": "f2",
     "command": "-editor.action.rename",
     "when": "editorHasRenameProvider && editorTextFocus && !editorReadonly"
-  },
-  {
-    "key": "ctrl+c right",
-    "command": "workbench.action.moveActiveEditorGroupRight"
-  },
-  {
-    "key": "cmd+k right",
-    "command": "-workbench.action.moveActiveEditorGroupRight"
-  },
-  {
-    "key": "ctrl+c down",
-    "command": "workbench.action.moveActiveEditorGroupDown"
-  },
-  {
-    "key": "cmd+k down",
-    "command": "-workbench.action.moveActiveEditorGroupDown"
-  },
-  {
-    "key": "ctrl+c left",
-    "command": "workbench.action.moveActiveEditorGroupLeft"
-  },
-  {
-    "key": "cmd+k left",
-    "command": "-workbench.action.moveActiveEditorGroupLeft"
-  },
-  {
-    "key": "ctrl+c up",
-    "command": "workbench.action.moveActiveEditorGroupUp"
-  },
-  {
-    "key": "cmd+k up",
-    "command": "-workbench.action.moveActiveEditorGroupUp"
   },
   {
     "key": "ctrl+c ctrl+b",
@@ -153,5 +92,80 @@
     "key": "shift+f11",
     "command": "-workbench.action.debug.stepOut",
     "when": "debugState == 'stopped'"
+  },
+  {
+    "key": "ctrl+q",
+    "command": "-workbench.action.quickOpenView"
+  },
+  {
+    "key": "ctrl+q",
+    "command": "-workbench.action.quickOpenNavigateNextInViewPicker",
+    "when": "inQuickOpen && inViewsPicker"
+  },
+  {
+    "key": "ctrl+q c",
+    "command": "workbench.action.terminal.newInActiveWorkspace"
+  },
+  {
+    "key": "ctrl+q shift+7",
+    "command": "workbench.action.terminal.kill"
+  },
+  {
+    "key": "ctrl+q p",
+    "command": "workbench.action.terminal.focusPrevious",
+    "when": "terminalFocus"
+  },
+  {
+    "key": "ctrl+q n",
+    "command": "workbench.action.terminal.focusNext",
+    "when": "terminalFocus"
+  },
+  {
+    "key": "ctrl+z n",
+    "command": "workbench.action.nextEditor",
+    "when": "!terminalFocus"
+  },
+  {
+    "key": "alt+cmd+right",
+    "command": "-workbench.action.nextEditor"
+  },
+  {
+    "key": "ctrl+x left",
+    "command": "workbench.action.focusLeftGroup",
+    "when": "!terminalFocus"
+  },
+  {
+    "key": "cmd+k cmd+left",
+    "command": "-workbench.action.focusLeftGroup"
+  },
+  {
+    "key": "ctrl+x 3",
+    "command": "workbench.action.terminal.split",
+    "when": "terminalFocus"
+  },
+  {
+    "key": "ctrl+shift+5",
+    "command": "-workbench.action.terminal.split",
+    "when": "terminalFocus"
+  },
+  {
+    "key": "ctrl+w right",
+    "command": "workbench.action.terminal.focusNextPane",
+    "when": "terminalFocus"
+  },
+  {
+    "key": "alt+cmd+right",
+    "command": "-workbench.action.terminal.focusNextPane",
+    "when": "terminalFocus"
+  },
+  {
+    "key": "ctrl+w left",
+    "command": "workbench.action.terminal.focusPreviousPane",
+    "when": "terminalFocus"
+  },
+  {
+    "key": "alt+cmd+left",
+    "command": "-workbench.action.terminal.focusPreviousPane",
+    "when": "terminalFocus"
   }
 ]

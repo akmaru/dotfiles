@@ -1,19 +1,15 @@
 {
     // Editor
     "editor.find.addExtraSpaceOnTop": false,
-    "editor.find.autoFindInSelection": true,
-    "editor.fontFamily": "Ricty Diminished for Powerline",
-    "editor.fontSize": 14,
-    "editor.lineHeight": 16,
+    "editor.find.autoFindInSelection": "multiline",
+    "editor.fontFamily": "HackGenNerd",
     "editor.renderControlCharacters": true,
-    "editor.tabSize": 2,
     // Theme
     "workbench.colorTheme": "Monokai Pro (Filter Spectrum)",
     "workbench.iconTheme": "Monokai Pro (Filter Spectrum) Icons",
     "breadcrumbs.enabled": true,
     "files.insertFinalNewline": true,
     "files.trimFinalNewlines": true,
-    "window.zoomLevel": 1,
     "workbench.startupEditor": "newUntitledFile",
     "workbench.commandPalette.history": 100000,
     // Languages
@@ -22,17 +18,130 @@
     "C_Cpp.updateChannel": "Insiders",
     "C_Cpp.clang_format_style": "file",
     "editor.formatOnSave": true,
-    "editor.formatOnType": true,
     /// Vue.js
     "[vue]": {
         "editor.tabSize": 2
     },
+    "[javascript]": {
+        "editor.tabSize": 2,
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
     "[cpp]": {
-        "editor.defaultFormatter": "xaver.clang-format"
+        "editor.tabSize": 2,
+        "editor.defaultFormatter": "ms-vscode.cpptools"
     },
     "C_Cpp.clang_format_fallbackStyle": "Google",
     "workbench.editor.showTabs": true,
     "keyboard.dispatch": "keyCode",
     "workbench.editor.enablePreviewFromQuickOpen": false,
-    "workbench.editor.enablePreview": false
+    "workbench.editor.enablePreview": false,
+    "editor.formatOnType": true,
+    "hediet.vscode-drawio.local-storage": "eyIuZHJhd2lvLWNvbmZpZyI6IntcImxhbmd1YWdlXCI6XCJcIixcImN1c3RvbUZvbnRzXCI6W10sXCJsaWJyYXJpZXNcIjpcImdlbmVyYWxcIixcImN1c3RvbUxpYnJhcmllc1wiOltcIkwuc2NyYXRjaHBhZFwiXSxcInBsdWdpbnNcIjpbXSxcInJlY2VudENvbG9yc1wiOltdLFwiZm9ybWF0V2lkdGhcIjpcIjI0MFwiLFwiY3JlYXRlVGFyZ2V0XCI6ZmFsc2UsXCJwYWdlRm9ybWF0XCI6e1wieFwiOjAsXCJ5XCI6MCxcIndpZHRoXCI6ODI3LFwiaGVpZ2h0XCI6MTE2OX0sXCJzZWFyY2hcIjp0cnVlLFwic2hvd1N0YXJ0U2NyZWVuXCI6dHJ1ZSxcImdyaWRDb2xvclwiOlwiI2QwZDBkMFwiLFwiZGFya0dyaWRDb2xvclwiOlwiIzZlNmU2ZVwiLFwiYXV0b3NhdmVcIjp0cnVlLFwicmVzaXplSW1hZ2VzXCI6bnVsbCxcIm9wZW5Db3VudGVyXCI6MCxcInZlcnNpb25cIjoxOCxcInVuaXRcIjoxLFwiaXNSdWxlck9uXCI6ZmFsc2V9In0=",
+    "diffEditor.ignoreTrimWhitespace": false,
+    "python.defaultInterpreterPath": "/usr/bin/python3",
+    "rust-client.engine": "rust-analyzer",
+    "go.useLanguageServer": true,
+    "vscode-neovim.neovimExecutablePaths.darwin": "/usr/local/bin/nvim",
+    "vim.useSystemClipboard": true,
+    "vim.vimrc.enable": true,
+    "vim.hlsearch": true,
+    "vim.visualstar": true,
+    "vim.history": 100000,
+    "vim.enableNeovim": true,
+    "vim.neovimPath": "/usr/local/bin/nvim",
+    "editor.fontSize": 16,
+    "editor.tabSize": 2,
+    "editor.lineHeight": 18,
+    "debug.console.fontSize": 14,
+    "terminal.integrated.fontSize": 14,
+    "terminal.external.osxExec": "iTerm.cpp",
+    "terminal.integrated.cursorStyle": "line",
+    "terminal.integrated.cursorBlinking": true,
+    "terminal.integrated.localEchoExcludePrograms": [
+        "vim",
+        "vi",
+        "nano",
+        "tmux",
+        "nvim",
+        "emacs"
+    ],
+    "terminal.integrated.scrollback": 100000,
+    "launch": {
+        "version": "0.2.0",
+        "inputs": [
+            {
+                "id": "program",
+                "type": "command",
+                "command": "cmake.launchTargetPath"
+            },
+            {
+                "id": "args",
+                "type": "promptString",
+                "description": "Args of the program"
+            }
+        ],
+        "configurations": [
+            {
+                "name": "C++: Select Executable",
+                "type": "cppdbg",
+                "request": "launch",
+                "program": "${input:program}",
+                "args": [
+                    // "${input:args}"
+                ],
+                "stopAtEntry": false,
+                "cwd": "${workspaceFolder}",
+                "environment": [],
+                "externalConsole": false,
+                // "preLaunchTask": "clang++ build active file",
+                "linux": {
+                    "MIMode": "gdb",
+                    // "miDebuggerPath": "/usr/bin/gdb"
+                    "setupCommands": [
+                        {
+                            "description": "Enable pretty-printing for gdb",
+                            "text": "-enable-pretty-printing",
+                            "ignoreFailures": true
+                        }
+                    ]
+                },
+                "osx": {
+                    "MIMode": "lldb"
+                    // "miDebuggerPath": "/usr/bin/lldb"
+                }
+            },
+            {
+                "name": "C++: Attach Python",
+                "type": "cppdbg",
+                "request": "attach",
+                "program": "$python", /* My virtual env */
+                "processId": "${command:pickProcess}",
+                "linux": {
+                    "MIMode": "gdb",
+                    // "miDebuggerPath": "/usr/bin/gdb"
+                    "setupCommands": [
+                        {
+                            "description": "Enable pretty-printing for gdb",
+                            "text": "-enable-pretty-printing",
+                            "ignoreFailures": true
+                        }
+                    ]
+                },
+                "osx": {
+                    "MIMode": "lldb"
+                    // "miDebuggerPath": "/usr/bin/lldb"
+                }
+            },
+            {
+                "name": "Python: Current File",
+                "type": "python",
+                "request": "launch",
+                "program": "${file}",
+                "console": "integratedTerminal"
+            }
+        ]
+    },
+    "compounds": [],
+    "dotfiles.repository": "https://github.com/akmaru/dotfiles.git",
+    "remote.containers.dotfiles.installCommand": "~/dotfiles/install_in_docker.sh"
 }
