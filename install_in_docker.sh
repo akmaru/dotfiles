@@ -39,7 +39,6 @@ ln -sf ${DOR_DIR}/.gitconfig ~/.gitconfig
 #
 ln -sf ${DOR_DIR}/.vim ~/.vim
 ln -sf ${DOT_DIR}/.vimrc ~/.vimrc
-git clone https://github.com/tomasr/molokai
 
 #
 # nvim

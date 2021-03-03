@@ -1,8 +1,22 @@
 " Required:
-set runtimepath+=~/.cache/dein/repos/github.com/Shougo/dein.vim
-
 let s:cache_home=empty($XDG_CACHE_HOME) ? expand('$HOME/.cache') : $XDG_CACHE_HOME
 let s:dein_dir = s:cache_home . '/dein'
+let s:dein_github = s:dein_dir . '/repos/github.com'
+let s:dein_repo_name = 'Shougo/dein.vim'
+let s:dein_repo_dir = s:dein_github . '/' . s:dein_repo_name
+
+" Check dein has been installed or not.
+if !isdirectory(s:dein_repo_dir)
+  let s:git = system("which git")
+  if strlen(s:git) != 0
+    echo 'dein is not installed, install now '
+    let s:dein_repo = 'https://github.com/' . s:dein_repo_name
+    echo 'git clone ' . s:dein_repo . ' ' . s:dein_repo_dir
+    call system('git clone ' . s:dein_repo . ' ' . s:dein_repo_dir)
+  endif
+endif
+
+set runtimepath+=~/.cache/dein/repos/github.com/Shougo/dein.vim
 
 " Required:
 if dein#load_state(s:dein_dir)
