@@ -2,7 +2,7 @@
 
 DOT_DIR=$(dirname $(readlink -f $0))
 
-source util/detect_os.sh
+source ${DOT_DIR}/util/detect_os.sh
 OS=`detect_os`
 
 if [ $OS == "Mac" ]; then
@@ -22,12 +22,12 @@ chsh -s /bin/zsh
 #
 # tmux
 #
-ln -sf ${DOR_DIR}/.tmux.conf ~/.tmux.conf
+ln -sf ${DOT_DIR}/.tmux.conf ~/.tmux.conf
 
 #
 # git
 #
-ln -sf ${DOR_DIR}/.gitconfig ~/.gitconfig
+ln -sf ${DOT_DIR}/.gitconfig ~/.gitconfig
 
 #
 # vim
@@ -46,11 +46,6 @@ ln -sf ${DOT_DIR}/.vimrc $HOME/.config/nvim/init.vim
 #
 mkdir -p ~/.emacs.d
 ln -sf ${DOT_DIR}/.emacs.d/init.el ~/.emacs.d/init.el
-
-#
-# VSCode
-#
-# cd .vscode && . install_vscode.sh && cd ../
 
 #
 # ssh

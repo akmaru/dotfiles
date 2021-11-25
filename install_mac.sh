@@ -4,46 +4,18 @@
 # /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 # brew install git
 
-ln -sf ~/dotfiles/.gitconfig_mac ~/.gitconfig_os
-
-packages=("
-  cmake \
-  emacs \
-  gdb \
-  ghq \
-  git-lfs \
-  graphviz \
-  llvm \
-  make \
-  neovim \
-  ninja \
-  rustup \
-  tmux \
-  unison \
-")
-
-cask_packages=("
-  alfred
-  bettersnaptool
-  bettertouchtool
-  docker
-  google-japanese-ime
-  google-chrome
-  google-drive-file-stream
-  karabiner-elements
-  font-hackgen-nerd
-  iterm2
-  slack
-  tunnelblick
-  visual-studio-code
-  xquartz
-")
-
-# Update
-brew update
+ln -sf $HOME/dotfiles/.gitconfig_mac $HOME/.gitconfig_os
+ln -sf $HOME/dotfiles/Brewfile $HONE/Brewfile
 
 # Install packages
-brew install $packages
+brew update && brew upgrade
+brew bundle
 
-# Install cask packages
-brew install --cask $cask_packages
+# Set the destination path of screenshots
+screenshot_location=$HOME/Pictures/Screenshots
+mkdir -p $screenshot_location
+defaults write com.apple.screencapture location $screenshot_location
+
+# Modify key repeat frequencies
+defaults write -g InitialKeyRepeat -int 10 # normal minimum is 15 (225 ms)
+defaults write -g KeyRepeat -int 1 # normal minimum is 2 (30 ms)
