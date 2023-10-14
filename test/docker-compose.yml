@@ -1,16 +1,26 @@
 version: "3.9"
 
+x-ubuntu: &ubuntu_common
+  volumes:
+    - ../:/home/developer/dotfiles
+  environment:
+    - TERM=xterm-256color
+  working_dir: /home/developer
+  command: bash
+  stdin_open: true
+  tty: true
+
 services:
+  ubuntu18.04:
+    image: ghcr.io/akmaru/dotfiles:ubuntu18.04
+    build:
+      context: .
+      dockerfile: ubuntu18.04.Dockerfile
+    <<: *ubuntu_common
+
   ubuntu20.04:
     image: ghcr.io/akmaru/dotfiles:ubuntu20.04
     build:
       context: .
       dockerfile: ubuntu20.04.Dockerfile
-    volumes:
-      - ../:/home/developer/dotfiles
-    environment:
-      - TERM=xterm-256color
-    working_dir: /home/developer
-    command: bash
-    stdin_open: true
-    tty: true
+    <<: *ubuntu_common
