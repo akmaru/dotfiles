@@ -5,6 +5,7 @@ ENV LANG C.UTF-8
 ENV PYTHONIOENCODING=utf-8
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+  ca-certificates \
   git \
   sudo \
   && apt-get clean && rm -rf /var/lib/apt/lists/*

@@ -1,7 +1,8 @@
-push:
+on: 
+  push:
     branches: [ "main" ]
     # Publish semver tags as releases.
-    tags: [ 'v*.*.*' ]
+    tags: [ "v*.*.*" ]
   pull_request:
     branches: [ "main" ]
 
@@ -27,25 +28,27 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build Docker Image
-      run: docker compose build
+      run: docker compose -f ./test/docker-compose.yml build
 
     - name: Push Docker Image
-      run: docker compose push
+      run: docker compose -f ./test/docker-compose.yml push
 
   test:
+    needs: build-image
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ubuntu-18.04, ubuntu-20.04]
+        os: [ubuntu18.04, ubuntu20.04]
     container: 
-      image: ${{ env.IMAGE_NAME }}/${{ matrix.os }}
+      image: ghcr.io/akmaru/dotfiles:${{ matrix.os }}
+      options: --user root
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - name: Run install_minimum.sh
+        run: ./install_minimum.sh
   

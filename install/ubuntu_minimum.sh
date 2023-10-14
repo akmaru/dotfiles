@@ -9,10 +9,8 @@ ln -sf ~/dotfiles/.gitconfig_linux ~/.gitconfig_os
 packages=("
   ca-certificates \
   curl \
-  fd-find \
   make \
   neovim \
-  ripgrep \
   tmux \
   zsh \
 ")
@@ -29,8 +27,10 @@ case $VERSION_CODENAME in
   focal)
     packages=("
       ${packages[@]} \
+      fd-find \
       libsecret-1-0 \
       libsecret-1-dev \
+      ripgrep \
     ")
     ;;
   *)
