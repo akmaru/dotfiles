@@ -3,6 +3,8 @@ set -euxo pipefail
 
 export DOT_PATH=$(dirname "$(readlink -f "$0")")
 
+if [ -z "${REMOTE_CONTAINERS:-}" ]; then
+
 case $OSTYPE in
   linux*)
     ${DOT_PATH}/install/ubuntu_minimum.sh
@@ -22,6 +24,8 @@ esac
 # https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
 #
 
+fi
+
 export XDG_BIN_HOME=$HOME/.local/bin
 export XDG_CACHE_HOME=$HOME/.cache
 export XDG_CONFIG_HOME=$HOME/.config
@@ -36,6 +40,8 @@ mkdir -p ${XDG_DATA_HOME}
 mkdir -p ${XDG_LIB_HOME}
 mkdir -p ${XDG_STATE_HOME}
 
+if [ -z "${REMOTE_CONTAINERS:-}" ]; then
+
 #
 # fzf
 #
@@ -45,6 +51,8 @@ mkdir -p ${XDG_STATE_HOME}
 # Sheldon
 #
 "${DOT_PATH}"/install/sheldon.sh
+
+fi
 
 #
 # zsh
