@@ -24,3 +24,10 @@ services:
       context: .
       dockerfile: ubuntu20.04.Dockerfile
     <<: *ubuntu_common
+
+  ubuntu22.04:
+    image: ghcr.io/akmaru/dotfiles:ubuntu22.04
+    build:
+      context: .
+      dockerfile: ubuntu22.04.Dockerfile
+    <<: *ubuntu_common

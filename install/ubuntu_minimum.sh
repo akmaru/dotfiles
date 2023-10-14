@@ -24,7 +24,7 @@ case $VERSION_CODENAME in
       libgnome-keyring-dev \
     ") 
     ;;
-  focal)
+  focal | jammy)
     packages=("
       ${packages[@]} \
       fd-find \
@@ -49,7 +49,7 @@ case $VERSION_CODENAME in
   bionic)
     sudo make -C /usr/share/doc/git/contrib/credential/gnome-keyring || true
     ;;
-  focal)
+  focal | jammy)
     sudo make -C /usr/share/doc/git/contrib/credential/libsecret || true
     ;;
 esac

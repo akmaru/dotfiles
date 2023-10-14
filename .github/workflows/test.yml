@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ubuntu18.04, ubuntu20.04]
+        os: [ubuntu18.04, ubuntu20.04, ubuntu22.04]
     container: 
       image: ghcr.io/akmaru/dotfiles:${{ matrix.os }}
       options: --user root
@@ -51,4 +51,11 @@ jobs:
 
       - name: Run install_minimum.sh
         run: ./install_minimum.sh
+
+      - name: Check the login shell
+        run: cat /etc/passwd | grep $(whoami)
+
+      - name: Run zsh
+        run: zsh
+
   
