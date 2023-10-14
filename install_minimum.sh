@@ -51,7 +51,7 @@ mkdir -p ${XDG_STATE_HOME}
 #
 ln -sf ${DOT_PATH}/.zshrc ~/.zshrc
 ln -sf ~/dotfiles/.p10k.zsh ~/.p10k.zsh
-chsh -s /bin/zsh
+sudo chsh "$(whoami)" -s "$(which zsh)"
 
 #
 # tmux
