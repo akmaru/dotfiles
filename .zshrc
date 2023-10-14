@@ -46,18 +46,59 @@ setopt auto_list
 setopt auto_menu
 setopt auto_pushd
 setopt auto_param_keys
-setopt correct
 setopt extended_history
 setopt hist_ignore_all_dups
+setopt hist_ignore_dups
 setopt hist_reduce_blanks
 setopt ignore_eof
 setopt inc_append_history
+setopt list_types
 setopt magic_equal_subst
 setopt mark_dirs
 setopt no_beep
 setopt notify
 setopt pushd_ignore_dups
 setopt share_history
+
+# Append '/' into delimiter
+WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
+
+
+#
+# XDG Base Directory 
+# https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
+#
+export XDG_CACHE_HOME=$HOME/.cache
+export XDG_CONFIG_HOME=$HOME/.config
+export XDG_DATA_HOME=$HOME/.local/share
+export XDG_STATE_HOME=$HOME/.local/state
+
+
+#
+# Path
+#
+export PATH=$HOME/.local/bin:$PATH
+
+
+#
+# Sheldon
+#
+if type "sheldon" > /dev/null 2>&1; then
+  eval "$(sheldon source)"
+fi
+
+
+#
+# Plugins
+#
+
+## fzf
+case $OSTYPE in
+  linux*)
+    source $HOME/.config/fzf/fzf.zsh
+    ;;
+esac
+
 
 
 #
@@ -70,25 +111,45 @@ compctl -g '*.dvi' xdvi dvi2ps
 compctl -g '*.ps' gv lpr idraw
 
 
+# enhanced
+export ENHANCD_HOOK_AFTER_CD=ls
+
+#
+# rtx
+# https://github.com/jdx/rtx
+#
+rtx_path=$XDG_DATA_HOME/rtx
+if [ -e $rtx_path ]; then
+  eval "$($rtx_path/bin/rtx activate zsh)"
+fi
+
+
 #
 # Aliases
 #
-case $OSTYPE in
-    darwin*)
-	alias ls='ls -FG'
-	;;
-    linux*)
-	alias ls='ls -F --color=auto'
-	;;
-esac
+
+# ls
+if type "eza" > /dev/null 2>&1; then
+    alias ls='eza'
+    alias l='eza -F'
+    alias la='eza -a'
+    alias ll='eza -l'
+else
+  case $OSTYPE in
+      darwin*)
+	  alias ls='ls -FG'
+	  ;;
+     linux*)
+	  alias ls='ls -F --color=auto'
+	  ;;
+  esac
 alias l='ls -lAgs | less -r'
 alias la='ls -A'
 alias ll='ls -l'
+fi
 
 alias emacs='TERM=xterm-256color emacs -nw'
-alias e='emacs'
-
-alias gdb='emacs -f gud-gdb'
+alias egdb='emacs -f gud-gdb'
 
 
 #
@@ -115,48 +176,42 @@ case $OSTYPE in
 esac
 
 
-
-#
-# Remove Duplicated Environments
-#
-typeset -gU PATH
-typeset -gU LD_LIBRARY_PATH
-
-
 #
 # zplug
 #
-source $HOME/.zplug/init.zsh
+# export ZPLUG_HOME=$(brew --prefix)/opt/zplug
+# source $ZPLUG_HOME/init.zsh
+# # source $HOME/.zplug/init.zsh
 
-# Plugins
-zplug 'romkatv/powerlevel10k', as:theme, depth:1
-zplug 'zsh-users/zsh-autosuggestions'
-zplug 'zsh-users/zsh-completions'
-zplug "zsh-users/zsh-history-substring-search"
-zplug 'zsh-users/zsh-syntax-highlighting'
-zplug "junegunn/fzf-bin", as:command, from:gh-r, rename-to:fzf
-zplug "junegunn/fzf", as:command, use:bin/fzf-tmux
-zplug "b4b4r07/enhancd", use:init.sh
-zplug 'mafredri/zsh-async', from:github
-zplug "chrissicool/zsh-256color"
-zplug 'mollifier/anyframe'
-zplug 'felixr/docker-zsh-completion'
+# # Plugins
+# zplug 'romkatv/powerlevel10k', as:theme, depth:1
+# zplug 'zsh-users/zsh-autosuggestions'
+# zplug 'zsh-users/zsh-completions'
+# zplug "zsh-users/zsh-history-substring-search"
+# zplug 'zsh-users/zsh-syntax-highlighting'
+# zplug "junegunn/fzf-bin", as:command, from:gh-r, rename-to:fzf
+# zplug "junegunn/fzf", as:command, use:bin/fzf-tmux
+# zplug "b4b4r07/enhancd", use:init.sh
+# zplug 'mafredri/zsh-async', from:github
+# zplug "chrissicool/zsh-256color"
+# zplug 'mollifier/anyframe'
+# zplug 'felixr/docker-zsh-completion'
 
-# Interactive Install Plugin
-if ! zplug check --verbose; then
-    printf "Install? [y/N]: "
-    if read -q; then
-        echo; zplug install
-    fi
-fi
+# # Interactive Install Plugin
+# if ! zplug check --verbose; then
+#     printf "Install? [y/N]: "
+#     if read -q; then
+#         echo; zplug install
+#     fi
+# fi
 
-# Load Plugins
-zplug load
+# # Load Plugins
+# zplug load
 
 # fzf
 export FZF_TMUX=1
 export FZF_DEFAULT_OPTS='--height 40% --reverse --border'
-source $HOME/.zplug/repos/junegunn/fzf/shell/key-bindings.zsh
+#source $HOME/.zplug/repos/junegunn/fzf/shell/key-bindings.zsh
 
 fbr() {
   local branches branch
@@ -250,3 +305,23 @@ bindkey "^]" ghq-fzf
 # For llvm
 export PATH=/usr/local/opt/llvm/bin:$PATH
 
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+
+# For nodebrew
+export PATH=$HOME/.nodebrew/current/bin:$PATH
+
+# For pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/shims:$PATH"
+
+#
+# Remove Duplicated Environments
+#
+typeset -gU PATH
+typeset -gU LD_LIBRARY_PATH
+
+# eval "$(/Users/maru/.local/share/rtx/bin/rtx activate zsh)"
+
+[ -f "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.zsh ] && source "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.zsh

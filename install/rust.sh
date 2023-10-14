@@ -4,7 +4,7 @@ echo "### Setup: Rust ###"
 
 rustup-init
 
-EXIST_SOURCE=`grep -c "## Rust" ~/.zshenv`
+EXIST_SOURCE=$(grep -c "## Rust" ~/.zshenv)
 
 if [ -z "$EXIST_SOURCE" ]; then
   echo "\n\

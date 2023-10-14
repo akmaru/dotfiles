@@ -2,7 +2,7 @@
     // Editor
     "editor.find.addExtraSpaceOnTop": false,
     "editor.find.autoFindInSelection": "multiline",
-    "editor.fontFamily": "HackGenNerd",
+    "editor.fontFamily": "HackGen Console NF",
     "editor.renderControlCharacters": true,
     // Theme
     "workbench.colorTheme": "Monokai Pro (Filter Spectrum)",

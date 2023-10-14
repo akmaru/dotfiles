@@ -1,1 +1,1 @@
-/home/maru/dotfiles/.vim
+/home/developer/dotfiles/.vim
