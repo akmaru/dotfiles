@@ -68,9 +68,11 @@ WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
 # XDG Base Directory 
 # https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
 #
+export XDG_BIN_HOME=$HOME/.local/bin
 export XDG_CACHE_HOME=$HOME/.cache
 export XDG_CONFIG_HOME=$HOME/.config
 export XDG_DATA_HOME=$HOME/.local/share
+export XDG_LIB_HOME=$HOME/.local/lib
 export XDG_STATE_HOME=$HOME/.local/state
 
 
@@ -89,29 +91,36 @@ fi
 
 
 #
-# Plugins
-#
-
-## fzf
-case $OSTYPE in
-  linux*)
-    source $HOME/.config/fzf/fzf.zsh
-    ;;
-esac
-
-
-
-#
 # Complementarity
+# It must be executed after zsh-completions
 #
-autoload -Uz compinit && compinit
 compctl -c man which
 compctl -g '*.tex' platex jlatex
 compctl -g '*.dvi' xdvi dvi2ps
 compctl -g '*.ps' gv lpr idraw
 
 
-# enhanced
+#
+# Plugins
+#
+
+## powerlevel10l
+ [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+
+## fzf
+case $OSTYPE in
+  linux*)
+    fzf_zsh_path="${XDG_CONFIG_HOME}"/fzf/fzf.zsh
+    [ -f "${fzf_zsh_path}" ] && source "${fzf_zsh_path}"
+    ;;
+esac
+export FZF_TMUX=1
+export FZF_DEFAULT_OPTS='--height 40% --reverse --border'
+#source $HOME/.zplug/repos/junegunn/fzf/shell/key-bindings.zsh
+
+
+## enhanced
 export ENHANCD_HOOK_AFTER_CD=ls
 
 #
@@ -177,42 +186,8 @@ esac
 
 
 #
-# zplug
+# fzf functions
 #
-# export ZPLUG_HOME=$(brew --prefix)/opt/zplug
-# source $ZPLUG_HOME/init.zsh
-# # source $HOME/.zplug/init.zsh
-
-# # Plugins
-# zplug 'romkatv/powerlevel10k', as:theme, depth:1
-# zplug 'zsh-users/zsh-autosuggestions'
-# zplug 'zsh-users/zsh-completions'
-# zplug "zsh-users/zsh-history-substring-search"
-# zplug 'zsh-users/zsh-syntax-highlighting'
-# zplug "junegunn/fzf-bin", as:command, from:gh-r, rename-to:fzf
-# zplug "junegunn/fzf", as:command, use:bin/fzf-tmux
-# zplug "b4b4r07/enhancd", use:init.sh
-# zplug 'mafredri/zsh-async', from:github
-# zplug "chrissicool/zsh-256color"
-# zplug 'mollifier/anyframe'
-# zplug 'felixr/docker-zsh-completion'
-
-# # Interactive Install Plugin
-# if ! zplug check --verbose; then
-#     printf "Install? [y/N]: "
-#     if read -q; then
-#         echo; zplug install
-#     fi
-# fi
-
-# # Load Plugins
-# zplug load
-
-# fzf
-export FZF_TMUX=1
-export FZF_DEFAULT_OPTS='--height 40% --reverse --border'
-#source $HOME/.zplug/repos/junegunn/fzf/shell/key-bindings.zsh
-
 fbr() {
   local branches branch
   branches=$(git branch -vv) &&
@@ -287,7 +262,9 @@ fshow() {
                 {}
 FZF-EOF"
 }
-eval "$(direnv hook bash)"
+if type "direnv" > /dev/null 2>&1; then
+  eval "$(direnv hook bash)"
+fi
 
 # frepo - ghq cd browser
 ghq-fzf() {
@@ -299,29 +276,11 @@ ghq-fzf() {
 bindkey "^]" ghq-fzf
 
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
 # For llvm
 export PATH=/usr/local/opt/llvm/bin:$PATH
-
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-
-# For nodebrew
-export PATH=$HOME/.nodebrew/current/bin:$PATH
-
-# For pyenv
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/shims:$PATH"
 
 #
 # Remove Duplicated Environments
 #
 typeset -gU PATH
 typeset -gU LD_LIBRARY_PATH
-
-# eval "$(/Users/maru/.local/share/rtx/bin/rtx activate zsh)"
-
-[ -f "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.zsh ] && source "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.zsh

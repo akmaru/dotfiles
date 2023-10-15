@@ -22,6 +22,9 @@ shell = "zsh"
 [plugins.zsh-defer]
 github = "romkatv/zsh-defer"
 
+[plugins.compinit]
+inline = 'autoload -Uz compinit && zsh-defer compinit'
+
 [plugins.powerlevel10k]
 github = "romkatv/powerlevel10k"
 
@@ -43,6 +46,8 @@ github = "zsh-users/zsh-history-substring-search"
 
 [plugins.enhancd]
 github = "b4b4r07/enhancd"
+use = ["init.sh"]
+apply = ['defer']
 
 [templates]
 defer = "{% for file in files %}zsh-defer source \"{{ file }}\"\n{% endfor %}"
