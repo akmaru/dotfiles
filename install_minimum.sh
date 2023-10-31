@@ -50,7 +50,7 @@ mkdir -p ${XDG_STATE_HOME}
 # zsh
 #
 ln -sf ${DOT_PATH}/.zshrc ~/.zshrc
-ln -sf ~/dotfiles/.p10k.zsh ~/.p10k.zsh
+ln -sf ${DOT_PATH}/.p10k.zsh ~/.p10k.zsh
 sudo chsh "$(whoami)" -s "$(which zsh)"
 
 #
