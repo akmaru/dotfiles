@@ -284,3 +284,5 @@ export PATH=/usr/local/opt/llvm/bin:$PATH
 #
 typeset -gU PATH
 typeset -gU LD_LIBRARY_PATH
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

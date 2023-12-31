@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euxo pipefail
 
-./install/minimum.sh
+./install_minimum.sh
 
 export DOT_PATH=$(dirname "$(readlink -f "$0")")
 

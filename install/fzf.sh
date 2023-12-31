@@ -13,4 +13,5 @@ case $OSTYPE in
   darwin*)
     # fzf will be installed by brew
     type "fzf"
+    $(brew --prefix)/opt/fzf/install
 esac
