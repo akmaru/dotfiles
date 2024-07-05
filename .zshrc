@@ -278,6 +278,16 @@ ghq-fzf() {
 # zle -N ghq-fzf
 bindkey "^]" ghq-fzf
 
+# aws-sts
+aws-auth() {
+  local credentials
+  credentials=$(aws sts assume-role --role-arn $(aws configure get $1.role_arn) --role-session-name Tentative-Session --profile $2 | jq ".Credentials")
+  echo "${credentials}"
+  export AWS_ACCESS_KEY_ID=$(echo $credentials | jq -r .AccessKeyId)
+  export AWS_SECRET_ACCESS_KEY=$(echo $credentials | jq -r .SecretAccessKey)
+  export AWS_SESSION_TOKEN=$(echo $credentials | jq -r .SessionToken)
+}
+
 
 # For llvm
 export PATH=/usr/local/opt/llvm/bin:$PATH
