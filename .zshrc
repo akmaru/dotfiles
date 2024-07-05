@@ -114,6 +114,9 @@ case $OSTYPE in
     fzf_zsh_path="${XDG_CONFIG_HOME}"/fzf/fzf.zsh
     [ -f "${fzf_zsh_path}" ] && source "${fzf_zsh_path}"
     ;;
+  darwin*)
+    fzf_zsh_path=$HOME/fzf/fzf.zsh
+    [ -f "${fzf_zsh_path}" ] && source "${fzf_zsh_path}"
 esac
 export FZF_TMUX=1
 export FZF_DEFAULT_OPTS='--height 40% --reverse --border'
@@ -284,5 +287,3 @@ export PATH=/usr/local/opt/llvm/bin:$PATH
 #
 typeset -gU PATH
 typeset -gU LD_LIBRARY_PATH
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
