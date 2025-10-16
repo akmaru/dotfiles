@@ -124,14 +124,12 @@ export FZF_DEFAULT_OPTS='--height 40% --reverse --border'
 export ENHANCD_HOOK_AFTER_CD=ls
 
 #
-# rtx
-# https://github.com/jdx/rtx
+# mise
 #
-rtx_path=$XDG_DATA_HOME/rtx
-if [ -e $rtx_path ]; then
-  eval "$($rtx_path/bin/rtx activate zsh)"
+mise_path=${HOME}/.local/bin/mise
+if [ -s ${mise_path} ]; then
+  eval "$(${mise_path} activate zsh)"
 fi
-
 
 #
 # Aliases

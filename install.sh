@@ -22,7 +22,7 @@ esac
 # rtx
 #
 if [ -z "${REMOTE_CONTAINER:-}" ]; then
-  "${DOT_PATH}"/install/rtx.sh
+  "${DOT_PATH}"/install/mise.sh
 fi
 
 #

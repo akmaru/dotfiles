@@ -1,4 +1,0 @@
-direnv latest
-golang latest
-nodejs lts
-python sub-0.1:latest
