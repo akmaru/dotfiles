@@ -47,6 +47,11 @@ mkdir -p ${XDG_STATE_HOME}
 "${DOT_PATH}"/install/sheldon.sh
 
 #
+# mise
+#
+"${DOT_PATH}"/install/mise.sh
+
+#
 # zsh
 #
 ln -sf ${DOT_PATH}/.zshrc ~/.zshrc

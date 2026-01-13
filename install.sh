@@ -19,13 +19,6 @@ case $OSTYPE in
 esac
 
 #
-# rtx
-#
-if [ -z "${REMOTE_CONTAINER:-}" ]; then
-  "${DOT_PATH}"/install/mise.sh
-fi
-
-#
 # Rust
 #
 #./install_rust.sh
