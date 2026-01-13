@@ -1,5 +1,11 @@
+[settings.python]
+compile = false
+
 [settings.pipx]
 uvx = true
+
+[settings.node]
+compile = false
 
 [tools]
 # global tool versions go here
@@ -14,4 +20,8 @@ uv = 'latest'
 golang = 'latest'
 
 # Node.js
+
 nodejs = 'lts'
+
+# AWS CLI
+awscli = 'latest'
