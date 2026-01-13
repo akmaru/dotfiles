@@ -1,9 +1,6 @@
 version: "3.9"
 
 x-ubuntu: &ubuntu_common
-  build: 
-    context: .
-    dockerfile: ubuntu.Dockerfile
   volumes:
     - ../:/home/developer/dotfiles
   environment:
@@ -16,12 +13,18 @@ x-ubuntu: &ubuntu_common
 services:
   ubuntu22.04:
     image: ghcr.io/akmaru/dotfiles:ubuntu22.04
-    args:
-      BASE_IMAGE: ubuntu:22.04
+    build:
+      context: .
+      dockerfile: ubuntu.Dockerfile
+      args:
+        BASE_IMAGE: ubuntu:22.04
     <<: *ubuntu_common
 
   ubuntu24.04:
     image: ghcr.io/akmaru/dotfiles:ubuntu24.04
-    args:
-      BASE_IMAGE: ubuntu:24.04
+    build:
+      context: .
+      dockerfile: ubuntu.Dockerfile
+      args:
+        BASE_IMAGE: ubuntu:22.04
     <<: *ubuntu_common
