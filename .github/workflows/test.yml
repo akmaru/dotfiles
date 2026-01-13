@@ -27,6 +27,9 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Initialize .env
+      run: ./test/init_env.sh
+
     - name: Build Docker Image
       run: docker compose -f ./test/docker-compose.yml build
 

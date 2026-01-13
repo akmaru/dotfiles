@@ -17,7 +17,9 @@ services:
       context: .
       dockerfile: ubuntu.Dockerfile
       args:
-        BASE_IMAGE: ubuntu:22.04
+        - BASE_IMAGE=ubuntu:22.04
+        - UID=${HOST_UID}
+        - GID=${HOST_GID}
     <<: *ubuntu_common
 
   ubuntu24.04:
@@ -26,5 +28,7 @@ services:
       context: .
       dockerfile: ubuntu.Dockerfile
       args:
-        BASE_IMAGE: ubuntu:24.04
+        - BASE_IMAGE=ubuntu:24.04
+        - UID=${HOST_UID}
+        - GID=${HOST_GID}
     <<: *ubuntu_common
