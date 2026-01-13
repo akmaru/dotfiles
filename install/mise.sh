@@ -11,5 +11,6 @@ curl https://mise.run | sh
 mkdir -p ${MISE_USER_DIR}
 ln -sf "${DOT_PATH}"/mise/config.toml ${MISE_USER_DIR}/config.toml
 
+export PATH="${HOME}/.local/bin:${PATH}"
 mise install
 mise doctor
