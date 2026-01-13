@@ -37,11 +37,6 @@ mkdir -p ${XDG_LIB_HOME}
 mkdir -p ${XDG_STATE_HOME}
 
 #
-# fzf
-#
-"${DOT_PATH}"/install/fzf.sh
-
-#
 # Sheldon
 #
 "${DOT_PATH}"/install/sheldon.sh
