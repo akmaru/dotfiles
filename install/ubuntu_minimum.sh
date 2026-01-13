@@ -1,16 +1,18 @@
 #!/bin/bash
 set -euox pipefail
 
-# In advance, run the following commands to install git.
-# sudo apt install git
-
 ln -sf ~/dotfiles/.gitconfig_linux ~/.gitconfig_os
 
 packages=("
   ca-certificates \
   curl \
+  fd-find \
+  git \
+  libsecret-1-0 \
+  libsecret-1-dev \
   make \
   neovim \
+  ripgrep \
   tmux \
   zsh \
 ")
@@ -18,20 +20,7 @@ packages=("
 . /etc/os-release
 
 case $VERSION_CODENAME in
-  bionic)
-    packages=("
-      ${packages[@]} \
-      libgnome-keyring-dev \
-    ") 
-    ;;
-  focal | jammy | noble)
-    packages=("
-      ${packages[@]} \
-      fd-find \
-      libsecret-1-0 \
-      libsecret-1-dev \
-      ripgrep \
-    ")
+  jammy | noble)
     ;;
   *)
     echo "$0 not support to install in ${VERSION_CODENAME}"
@@ -45,11 +34,4 @@ sudo apt-get update \
   && sudo apt-get clean && sudo rm -rf /var/lib/apt/lists/*
  
 # Build gnome-keyring (for git credential)
-case $VERSION_CODENAME in
-  bionic)
-    sudo make -C /usr/share/doc/git/contrib/credential/gnome-keyring || true
-    ;;
-  focal | jammy | noble)
-    sudo make -C /usr/share/doc/git/contrib/credential/libsecret || true
-    ;;
-esac
+sudo make -C /usr/share/doc/git/contrib/credential/libsecret || true

@@ -1,10 +1,13 @@
-FROM ubuntu:18.04
+ARG BASE_IMAGE
+
+FROM ${BASE_IMAGE}
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG C.UTF-8
 ENV PYTHONIOENCODING=utf-8
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+  ca-certificates \
   git \
   sudo \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
