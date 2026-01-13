@@ -31,7 +31,7 @@ jobs:
       run: ./test/init_env.sh
 
     - name: Build Docker Image
-      run: docker compose -f ./test/docker-compose.yml build
+      run: cat .env && docker compose -f ./test/docker-compose.yml build
 
     - name: Push Docker Image
       run: docker compose -f ./test/docker-compose.yml push
