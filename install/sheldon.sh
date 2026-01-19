@@ -4,7 +4,7 @@ set -euox pipefail
 case $OSTYPE in
   linux*)
     curl --proto '=https' -fLsS https://rossmacarthur.github.io/install/crate.sh \
-      | bash -s -- --repo rossmacarthur/sheldon --to "${XDG_BIN_HOME}"
+      | bash -s -- --repo rossmacarthur/sheldon --to "${XDG_BIN_HOME}" -f
     ;;
   darwin*)
     # sheldon will be installed by brew
