@@ -86,3 +86,9 @@ ln -sf ${DOT_PATH}/.emacs.d/init.el ~/.emacs.d/init.el
 #
 mkdir -p ~/.ssh
 ln -sf ${DOT_PATH}/.ssh/config ~/.ssh/config
+
+#
+# Claude Code
+#
+"${DOT_PATH}"/install/claude_code.sh
+
