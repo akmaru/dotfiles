@@ -12,6 +12,7 @@ compile = false
 # you can set these with `mise use -g`
 
 fzf = "latest"
+ghq = "latest"
 
 # Python
 uv = 'latest'
@@ -20,8 +21,8 @@ uv = 'latest'
 golang = 'latest'
 
 # Node.js
-
 nodejs = 'lts'
 
 # AWS CLI
 awscli = 'latest'
+
