@@ -31,7 +31,7 @@
         "editor.defaultFormatter": "ms-vscode.cpptools"
     },
     "C_Cpp.clang_format_fallbackStyle": "Google",
-    "workbench.editor.showTabs": true,
+    "workbench.editor.showTabs": "multiple",
     "keyboard.dispatch": "keyCode",
     "workbench.editor.enablePreviewFromQuickOpen": false,
     "workbench.editor.enablePreview": false,
@@ -145,4 +145,11 @@
     "dotfiles.repository": "https://github.com/akmaru/dotfiles.git",
     "remote.containers.dotfiles.installCommand": "~/dotfiles/install_in_docker.sh",
     "claudeCode.preferredLocation": "panel"
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": false,
+        "markdown": true,
+        "scminput": false
+    }
 }
+
