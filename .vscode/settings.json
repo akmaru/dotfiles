@@ -143,5 +143,6 @@
     },
     "compounds": [],
     "dotfiles.repository": "https://github.com/akmaru/dotfiles.git",
-    "remote.containers.dotfiles.installCommand": "~/dotfiles/install_in_docker.sh"
+    "remote.containers.dotfiles.installCommand": "~/dotfiles/install_in_docker.sh",
+    "claudeCode.preferredLocation": "panel"
 }
