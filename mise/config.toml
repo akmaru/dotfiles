@@ -14,15 +14,23 @@ compile = false
 fzf = "latest"
 ghq = "latest"
 
-# Python
-uv = 'latest'
 
-# Golang
-golang = 'latest'
+# Programming Languages
+## Python
+uv = "latest"
 
-# Node.js
-nodejs = 'lts'
+## Golang
+golang = "latest"
 
-# AWS CLI
-awscli = 'latest'
+## Node.js
+nodejs = "lts"
 
+# CLI Tools
+## AWS CLI
+awscli = "latest"
+
+# GitHub CLI
+gh = "latest"
+
+# GitLab CLI
+glab = "latest"
