@@ -86,6 +86,7 @@ ln -sf ${DOT_PATH}/.emacs.d/init.el ~/.emacs.d/init.el
 #
 mkdir -p ~/.ssh
 ln -sf ${DOT_PATH}/.ssh/config ~/.ssh/config
+mkdir -p ~/.ssh/config.d
 
 #
 # Claude Code
