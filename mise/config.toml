@@ -13,7 +13,7 @@ compile = false
 
 fzf = "latest"
 ghq = "latest"
-
+jq = "latest"
 
 # Programming Languages
 ## Python
