@@ -1,0 +1,17 @@
+{
+  "$schema": "./master-mcp-schema.json",
+  "_comment": "MCP master configuration - edit this file and run sync-mcp.sh to propagate",
+  "servers": {
+    "memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "env": {
+        "MEMORY_FILE": "${HOME}/.config/mcp/shared-memory.json"
+      },
+      "_comment": "Shared memory server - knowledge graph shared across all tools"
+    }
+  }
+}
