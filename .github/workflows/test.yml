@@ -78,4 +78,7 @@ jobs:
       - name: Run zsh
         run: zsh
 
+      - name: Test MCP sync script
+        run: ./test/test_mcp_sync.sh
+
   

@@ -150,7 +150,8 @@ Similar to SSH Config's `Include` directive, you can split configurations into s
       "args": ["-y", "@modelcontextprotocol/server-memory"],
       "env": {
         "MEMORY_FILE": "${HOME}/.config/mcp/shared-memory.json"
-      }
+      },
+      "_comment": "No need to specify PATH - it's automatically added during sync"
     },
     "github": {
       "type": "http",
@@ -162,6 +163,10 @@ Similar to SSH Config's `Include` directive, you can split configurations into s
   }
 }
 ```
+
+Note: The sync script automatically:
+- Resolves `npx` to `/Users/you/.local/share/mise/shims/npx`
+- Adds `env.PATH` with your shell's PATH from .zshrc/.bashrc
 
 **Work config** (`master-mcp.d/work.json`):
 ```json
@@ -185,7 +190,8 @@ Similar to SSH Config's `Include` directive, you can split configurations into s
 
 **Merge behavior:**
 - Files in `master-mcp.d/` are processed in **alphabetical order**
-- Later files override earlier ones (same server name = overwrite)
+- **Complete replacement**: When a server name appears in multiple configs, the later config **completely replaces** the earlier one (not shallow merge)
+- Example: If `master-mcp.json` defines `GitLab` with `type: "http"`, and `master-mcp.d/work.json` defines `GitLab` with `command: "npx"`, the final result will **only** have `command: "npx"` (no leftover `type` or `url` fields)
 - Personal repo manages `master-mcp.json`, work repo manages `master-mcp.d/work.json`
 - Add `master-mcp.d/` to personal repo's `.gitignore` to keep work configs separate
 
@@ -208,6 +214,67 @@ Similar to SSH Config's `Include` directive, you can split configurations into s
   "env": { "API_KEY": "value" }
 }
 ```
+
+## Automatic Path Resolution and PATH Injection
+
+The sync script automatically:
+1. **Resolves command paths**: `"command": "npx"` → `/Users/you/.local/share/mise/shims/npx`
+2. **Adds PATH to all servers**: Injects your shell's PATH (from .zshrc/.bashrc) into `env.PATH`
+
+This means you can write simple configs in `master-mcp.json`:
+
+```json
+{
+  "servers": {
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    }
+  }
+}
+```
+
+And it automatically becomes:
+
+```json
+{
+  "memory": {
+    "command": "/Users/you/.local/share/mise/shims/npx",
+    "args": ["-y", "@modelcontextprotocol/server-memory"],
+    "env": {
+      "PATH": "/Users/you/.local/share/mise/shims:/usr/local/bin:/usr/bin:/bin:..."
+    }
+  }
+}
+```
+
+**Path resolution priority:**
+1. If `command` is already an absolute path, it's used as-is
+2. Check mise shims directory (`~/.local/share/mise/shims/`)
+3. Search in shell PATH (from .zshrc/.bashrc)
+4. Fallback to original command if not found
+
+## Testing
+
+Run the test suite to verify the sync script works correctly:
+
+```bash
+./test/test_mcp_sync.sh
+```
+
+Tests include:
+- Basic sync functionality (Claude Code, VS Code, GitLab Duo)
+- Command path resolution (`npx` → `/bin/echo`)
+- PATH injection to all servers
+- Include pattern (`master-mcp.d/*.json`)
+- Complete replacement (not shallow merge)
+- Preservation of existing env fields
+- Tool-specific key names (`mcpServers` vs `servers`)
+- Sync to all tools at once
+
+The test suite creates an isolated environment and does not modify your actual config files.
+
+Tests are automatically run on GitHub Actions for Ubuntu 22.04 and 24.04.
 
 ## Notes
 

@@ -74,6 +74,101 @@ ensure_dir() {
     mkdir -p "$dir"
 }
 
+# Get shell PATH by sourcing .zshrc/.bashrc
+get_shell_path() {
+    # Try to get PATH from shell config
+    local shell_path=""
+
+    # Try zsh first
+    if [[ -f "${HOME}/.zshrc" ]]; then
+        shell_path=$(zsh -c 'source ~/.zshrc 2>/dev/null; echo $PATH' 2>/dev/null)
+    fi
+
+    # Fallback to bash
+    if [[ -z "$shell_path" ]] && [[ -f "${HOME}/.bashrc" ]]; then
+        shell_path=$(bash -c 'source ~/.bashrc 2>/dev/null; echo $PATH' 2>/dev/null)
+    fi
+
+    # Fallback to current PATH
+    if [[ -z "$shell_path" ]]; then
+        shell_path="$PATH"
+    fi
+
+    echo "$shell_path"
+}
+
+# Resolve command path (e.g., "npx" -> "/Users/user/.local/share/mise/shims/npx")
+resolve_command_path() {
+    local cmd="$1"
+    local shell_path="$2"
+
+    # If already an absolute path, return as-is
+    if [[ "$cmd" = /* ]]; then
+        echo "$cmd"
+        return
+    fi
+
+    # Try mise shims first (most common case)
+    local mise_shim="${HOME}/.local/share/mise/shims/${cmd}"
+    if [[ -x "$mise_shim" ]]; then
+        echo "$mise_shim"
+        return
+    fi
+
+    # Search in shell PATH
+    local IFS=:
+    for dir in $shell_path; do
+        if [[ -x "${dir}/${cmd}" ]]; then
+            echo "${dir}/${cmd}"
+            return
+        fi
+    done
+
+    # Not found, return original
+    echo "$cmd"
+}
+
+# Enrich server configurations with resolved paths and PATH env
+enrich_servers() {
+    local servers_file="$1"
+    local shell_path
+    shell_path=$(get_shell_path)
+
+    log_info "Enriching server configs (resolving paths, adding PATH)"
+
+    local temp_input temp_output
+    temp_input=$(mktemp)
+    temp_output=$(mktemp)
+
+    cat "$servers_file" > "$temp_input"
+
+    # Process each server entry
+    jq -c 'to_entries[]' "$temp_input" | while IFS= read -r server_entry; do
+        local server_name server_data command resolved_cmd
+        server_name=$(echo "$server_entry" | jq -r '.key')
+        server_data=$(echo "$server_entry" | jq '.value')
+        command=$(echo "$server_data" | jq -r '.command // empty')
+
+        # Resolve command path if present
+        if [[ -n "$command" ]]; then
+            resolved_cmd=$(resolve_command_path "$command" "$shell_path")
+            if [[ "$resolved_cmd" != "$command" ]]; then
+                log_info "  $server_name: $command -> $resolved_cmd"
+            fi
+            server_data=$(echo "$server_data" | jq --arg cmd "$resolved_cmd" '.command = $cmd')
+        fi
+
+        # Add PATH to env
+        server_data=$(echo "$server_data" | jq --arg path "$shell_path" '.env = ((.env // {}) + {"PATH": $path})')
+
+        # Output updated server
+        echo "$server_data" | jq -c --arg name "$server_name" '{($name): .}'
+    done | jq -s 'add' > "$temp_output"
+
+    cat "$temp_output"
+    rm -f "$temp_input" "$temp_output"
+}
+
 # Extract and merge server definitions from master config and master-mcp.d/*.json
 # Files in master-mcp.d/ are merged in alphabetical order, later files override earlier ones
 get_servers() {
@@ -99,10 +194,18 @@ get_servers() {
                 temp_additional=$(mktemp)
 
                 if jq 'del(.["$schema"], ._comment) | .servers | to_entries | map(.value |= del(._comment)) | from_entries' "$conf" > "$temp_additional" 2>/dev/null; then
-                    # Merge: additional overwrites existing
+                    # Merge: additional servers completely override existing ones (not shallow merge)
+                    # Use reduce to replace each server completely
                     local temp_result
                     temp_result=$(mktemp)
-                    jq -s '.[0] * .[1]' "$temp_merged" "$temp_additional" > "$temp_result"
+                    jq -s '
+                        .[0] as $base |
+                        .[1] as $override |
+                        reduce ($override | keys[]) as $key (
+                            $base;
+                            .[$key] = $override[$key]
+                        )
+                    ' "$temp_merged" "$temp_additional" > "$temp_result"
                     mv "$temp_result" "$temp_merged"
                     rm -f "$temp_additional"
                     ((conf_count++))
@@ -130,9 +233,12 @@ get_servers() {
 sync_claude_code() {
     log_info "Syncing to Claude Code..."
 
-    local servers_file
+    local servers_file enriched_file
     servers_file=$(mktemp)
+    enriched_file=$(mktemp)
+
     get_servers > "$servers_file"
+    enrich_servers "$servers_file" > "$enriched_file"
 
     ensure_dir "$CLAUDE_CODE_CONFIG"
 
@@ -141,14 +247,14 @@ sync_claude_code() {
         # Merge mcpServers into existing .claude.json (preserves other keys)
         local tmp
         tmp=$(mktemp)
-        jq --slurpfile servers "$servers_file" '.mcpServers = $servers[0]' "$CLAUDE_CODE_CONFIG" > "$tmp"
+        jq --slurpfile servers "$enriched_file" '.mcpServers = $servers[0]' "$CLAUDE_CODE_CONFIG" > "$tmp"
         mv "$tmp" "$CLAUDE_CODE_CONFIG"
     else
         # Create new file
-        jq -n --slurpfile servers "$servers_file" '{"mcpServers": $servers[0]}' > "$CLAUDE_CODE_CONFIG"
+        jq -n --slurpfile servers "$enriched_file" '{"mcpServers": $servers[0]}' > "$CLAUDE_CODE_CONFIG"
     fi
 
-    rm -f "$servers_file"
+    rm -f "$servers_file" "$enriched_file"
     log_ok "Claude Code: $CLAUDE_CODE_CONFIG"
 }
 
@@ -159,9 +265,12 @@ sync_claude_code() {
 sync_vscode() {
     log_info "Syncing to VS Code (GitHub Copilot)..."
 
-    local servers_file
+    local servers_file enriched_file
     servers_file=$(mktemp)
+    enriched_file=$(mktemp)
+
     get_servers > "$servers_file"
+    enrich_servers "$servers_file" > "$enriched_file"
 
     ensure_dir "$VSCODE_MCP_CONFIG"
 
@@ -170,13 +279,13 @@ sync_vscode() {
         backup_file "$VSCODE_MCP_CONFIG"
         local tmp
         tmp=$(mktemp)
-        jq --slurpfile servers "$servers_file" '.servers = $servers[0]' "$VSCODE_MCP_CONFIG" > "$tmp"
+        jq --slurpfile servers "$enriched_file" '.servers = $servers[0]' "$VSCODE_MCP_CONFIG" > "$tmp"
         mv "$tmp" "$VSCODE_MCP_CONFIG"
     else
-        jq -n --slurpfile servers "$servers_file" '{"servers": $servers[0]}' > "$VSCODE_MCP_CONFIG"
+        jq -n --slurpfile servers "$enriched_file" '{"servers": $servers[0]}' > "$VSCODE_MCP_CONFIG"
     fi
 
-    rm -f "$servers_file"
+    rm -f "$servers_file" "$enriched_file"
     log_ok "VS Code:     $VSCODE_MCP_CONFIG"
 }
 
@@ -187,17 +296,20 @@ sync_vscode() {
 sync_gitlab_duo() {
     log_info "Syncing to GitLab Duo..."
 
-    local servers_file
+    local servers_file enriched_file
     servers_file=$(mktemp)
+    enriched_file=$(mktemp)
+
     get_servers > "$servers_file"
+    enrich_servers "$servers_file" > "$enriched_file"
 
     ensure_dir "$GITLAB_DUO_CONFIG"
     backup_file "$GITLAB_DUO_CONFIG"
 
     # GitLab Duo uses the "mcpServers" key
-    jq -n --slurpfile servers "$servers_file" '{"mcpServers": $servers[0]}' > "$GITLAB_DUO_CONFIG"
+    jq -n --slurpfile servers "$enriched_file" '{"mcpServers": $servers[0]}' > "$GITLAB_DUO_CONFIG"
 
-    rm -f "$servers_file"
+    rm -f "$servers_file" "$enriched_file"
     log_ok "GitLab Duo:  $GITLAB_DUO_CONFIG"
 }
 
@@ -215,28 +327,31 @@ sync_project() {
 
     log_info "Syncing project-level config: $project_dir"
 
-    local servers_file
+    local servers_file enriched_file
     servers_file=$(mktemp)
+    enriched_file=$(mktemp)
+
     get_servers > "$servers_file"
+    enrich_servers "$servers_file" > "$enriched_file"
 
     # Claude Code: <project>/.mcp.json
-    jq -n --slurpfile servers "$servers_file" '{"mcpServers": $servers[0]}' \
+    jq -n --slurpfile servers "$enriched_file" '{"mcpServers": $servers[0]}' \
         > "${project_dir}/.mcp.json"
     log_ok "  Claude Code:  ${project_dir}/.mcp.json"
 
     # VS Code: <project>/.vscode/mcp.json
     mkdir -p "${project_dir}/.vscode"
-    jq -n --slurpfile servers "$servers_file" '{"servers": $servers[0]}' \
+    jq -n --slurpfile servers "$enriched_file" '{"servers": $servers[0]}' \
         > "${project_dir}/.vscode/mcp.json"
     log_ok "  VS Code:      ${project_dir}/.vscode/mcp.json"
 
     # GitLab Duo: <project>/.gitlab/duo/mcp.json
     mkdir -p "${project_dir}/.gitlab/duo"
-    jq -n --slurpfile servers "$servers_file" '{"mcpServers": $servers[0]}' \
+    jq -n --slurpfile servers "$enriched_file" '{"mcpServers": $servers[0]}' \
         > "${project_dir}/.gitlab/duo/mcp.json"
     log_ok "  GitLab Duo:   ${project_dir}/.gitlab/duo/mcp.json"
 
-    rm -f "$servers_file"
+    rm -f "$servers_file" "$enriched_file"
 }
 
 # ============================================================
