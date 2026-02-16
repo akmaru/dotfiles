@@ -44,7 +44,7 @@ mkdir -p ${XDG_STATE_HOME}
 #
 # mise
 #
-"${DOT_PATH}"/install/mise.sh
+source "${DOT_PATH}"/install/mise.sh
 
 #
 # zsh
