@@ -2,12 +2,19 @@
   "_comment": "MCP master configuration - edit this file and run sync-mcp.sh to propagate",
   "servers": {
     "GitHub": {
-      "type": "http",
-      "url": "https://api.githubcopilot.com/mcp/",
-      "headers": {
-        "Authorization": "Bearer ${GITHUB_TOKEN}"
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "ghcr.io/github/github-mcp-server"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
       },
-      "_comment": "GitHub MCP server - HTTP-based (GitHub Copilot API)"
+      "_comment": "GitHub MCP server - Local Docker (Official)"
     },
     "GitLab": {
       "command": "npx",
