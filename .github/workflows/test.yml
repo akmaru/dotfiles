@@ -70,9 +70,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run install_minimum.sh
-        run: |
-          ls install/
-          ./install_minimum.sh
+        run: ./install_minimum.sh
 
       - name: Check the login shell
         run: cat /etc/passwd | grep $(whoami)

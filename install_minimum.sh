@@ -91,7 +91,7 @@ mkdir -p ~/.ssh/config.d
 #
 # mcp
 #
-#"${DOT_PATH}"/install/mcp.sh
+"${DOT_PATH}"/install/mcp.sh
 
 #
 # Claude Code
