@@ -49,6 +49,7 @@ source "${DOT_PATH}"/install/mise.sh
 #
 # zsh
 #
+ln -sf ${DOT_PATH}/.zshenv ~/.zshenv
 ln -sf ${DOT_PATH}/.zshrc ~/.zshrc
 ln -sf ${DOT_PATH}/.p10k.zsh ~/.p10k.zsh
 sudo chsh "$(whoami)" -s "$(which zsh)"

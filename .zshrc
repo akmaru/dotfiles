@@ -83,14 +83,6 @@ export PATH=$HOME/.local/bin:$PATH
 
 
 #
-# GitHub Token for MCP
-#
-if type "gh" > /dev/null 2>&1; then
-  export GITHUB_TOKEN=$(gh auth token 2>/dev/null)
-fi
-
-
-#
 # Sheldon
 #
 if type "sheldon" > /dev/null 2>&1; then
