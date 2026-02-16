@@ -1,0 +1,19 @@
+# Claude Code runtime data (exclude from version control)
+cache/
+debug/
+downloads/
+file-history/
+history.jsonl
+ide/
+plans/
+plugins/
+projects/
+session-env/
+shell-snapshots/
+stats-cache.json
+statsig/
+telemetry/
+todos/
+
+# Local settings (machine-specific)
+settings.local.json
