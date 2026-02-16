@@ -1,10 +1,23 @@
 {
-  "$schema": "./master-mcp-schema.json",
   "_comment": "MCP master configuration - edit this file and run sync-mcp.sh to propagate",
   "servers": {
-    "GitLab": {
+    "GitHub": {
       "type": "http",
-      "url": "https://gitlab.com/api/v4/mcp"
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer ${GITHUB_TOKEN}"
+      },
+      "_comment": "GitHub MCP server - HTTP-based (GitHub Copilot API)"
+    },
+    "GitLab": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://gitlab.com/api/v4/mcp",
+        "--static-oauth-client-metadata",
+        "{\"scope\": \"mcp\"}"
+      ]
     },
     "memory": {
       "command": "npx",
@@ -16,6 +29,12 @@
         "MEMORY_FILE": "${HOME}/.config/mcp/shared-memory.json"
       },
       "_comment": "Shared memory server - knowledge graph shared across all tools"
+    },
+    "drawio": {
+      "command": "npx",
+      "args": [
+        "@drawio/mcp"
+      ]
     }
   }
 }

@@ -36,6 +36,12 @@ fi
 # GitLab Duo: ~/.gitlab/duo/mcp.json
 GITLAB_DUO_CONFIG="${HOME}/.gitlab/duo/mcp.json"
 
+# Claude Desktop: macOS only
+# macOS:  ~/Library/Application Support/Claude/claude_desktop_config.json
+if [[ "$(uname)" == "Darwin" ]]; then
+    CLAUDE_DESKTOP_CONFIG="${HOME}/Library/Application Support/Claude/claude_desktop_config.json"
+fi
+
 # ============================================================
 # Utilities
 # ============================================================
@@ -314,6 +320,43 @@ sync_gitlab_duo() {
 }
 
 # ============================================================
+# Claude Desktop
+# ============================================================
+
+sync_claude_desktop() {
+    if [[ -z "${CLAUDE_DESKTOP_CONFIG:-}" ]]; then
+        log_warn "Claude Desktop sync is only supported on macOS"
+        return 0
+    fi
+
+    log_info "Syncing to Claude Desktop..."
+
+    local servers_file enriched_file
+    servers_file=$(mktemp)
+    enriched_file=$(mktemp)
+
+    get_servers > "$servers_file"
+    enrich_servers "$servers_file" > "$enriched_file"
+
+    ensure_dir "$CLAUDE_DESKTOP_CONFIG"
+
+    if [[ -f "$CLAUDE_DESKTOP_CONFIG" ]]; then
+        backup_file "$CLAUDE_DESKTOP_CONFIG"
+        # Merge mcpServers into existing config (preserves preferences and other keys)
+        local tmp
+        tmp=$(mktemp)
+        jq --slurpfile servers "$enriched_file" '.mcpServers = $servers[0]' "$CLAUDE_DESKTOP_CONFIG" > "$tmp"
+        mv "$tmp" "$CLAUDE_DESKTOP_CONFIG"
+    else
+        # Create new file
+        jq -n --slurpfile servers "$enriched_file" '{"mcpServers": $servers[0]}' > "$CLAUDE_DESKTOP_CONFIG"
+    fi
+
+    rm -f "$servers_file" "$enriched_file"
+    log_ok "Claude Desktop: $CLAUDE_DESKTOP_CONFIG"
+}
+
+# ============================================================
 # Project-level sync (optional)
 # ============================================================
 
@@ -407,11 +450,15 @@ TEMPLATE
     case "${1:-all}" in
         all)
             sync_claude_code
+            sync_claude_desktop
             sync_vscode
             sync_gitlab_duo
             ;;
         claude)
             sync_claude_code
+            ;;
+        desktop)
+            sync_claude_desktop
             ;;
         vscode)
             sync_vscode
@@ -427,7 +474,7 @@ TEMPLATE
             sync_project "$2"
             ;;
         *)
-            echo "Usage: $0 [all|claude|vscode|gitlab|project <path>]"
+            echo "Usage: $0 [all|claude|desktop|vscode|gitlab|project <path>]"
             exit 1
             ;;
     esac
@@ -436,9 +483,10 @@ TEMPLATE
     log_ok "Sync complete! Restart each tool to apply changes."
     echo ""
     echo "  Verify with:"
-    echo "    Claude Code:  claude mcp list"
-    echo "    VS Code:      Command Palette > MCP: List Servers"
-    echo "    GitLab Duo:   Command Palette > GitLab: Show MCP Dashboard"
+    echo "    Claude Code:    claude mcp list"
+    echo "    Claude Desktop: Settings > Developer > Edit Config"
+    echo "    VS Code:        Command Palette > MCP: List Servers"
+    echo "    GitLab Duo:     Command Palette > GitLab: Show MCP Dashboard"
     echo ""
 }
 

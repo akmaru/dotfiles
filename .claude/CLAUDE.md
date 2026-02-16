@@ -21,6 +21,10 @@ Windows / macOS / Ubuntu 対応の個人用 dotfiles リポジトリ。
 ├── .ssh/config               # SSH (個人用のみ, config.d/*.conf で会社用を Include)
 ├── sheldon/plugins.toml      # Zsh プラグイン管理
 ├── mise/config.toml          # ツールバージョン管理 (Python, Node, Go 等)
+├── mcp/                      # MCP サーバー設定
+│   ├── master-mcp.json       # MCP サーバーのマスター設定
+│   ├── sync-mcp.sh           # 設定を Claude Code/Desktop, VS Code, GitLab Duo に同期
+│   └── README.md             # MCP 設定の詳細
 ├── Brewfile                  # macOS Homebrew パッケージ
 └── test/                     # テスト用 Docker 環境
     ├── docker-compose.yml
@@ -41,6 +45,36 @@ Windows / macOS / Ubuntu 対応の個人用 dotfiles リポジトリ。
 - `.ssh/config.d/*.conf` — 個別環境用 config の配置先 (別リポジトリから Include)
 
 個別環境用リポジトリのセットアップスクリプトで `~/.ssh/config.d/work.conf` にシンボリックリンクを作成する想定。
+
+## MCP サーバー設定
+
+MCP (Model Context Protocol) サーバーの設定を一元管理し、複数のツールに同期する仕組み。
+
+- `mcp/master-mcp.json` — MCP サーバーのマスター設定（個人用）
+- `~/.config/mcp/master-mcp.d/*.json` — 追加設定（会社用など、別リポジトリから Include）
+- `mcp/sync-mcp.sh` — 設定を各ツールに同期するスクリプト
+
+### 同期対象ツール
+
+- Claude Code (`~/.claude.json`)
+- Claude Desktop (`~/Library/Application Support/Claude/claude_desktop_config.json`, macOS のみ)
+- VS Code / GitHub Copilot (`~/Library/Application Support/Code/User/mcp.json`)
+- GitLab Duo (`~/.gitlab/duo/mcp.json`)
+
+### 使い方
+
+```bash
+# 全ツールに同期
+sync-mcp.sh all
+
+# 個別に同期
+sync-mcp.sh claude    # Claude Code
+sync-mcp.sh desktop   # Claude Desktop (macOS)
+sync-mcp.sh vscode    # VS Code
+sync-mcp.sh gitlab    # GitLab Duo
+```
+
+詳細は [mcp/README.md](mcp/README.md) を参照。
 
 ## テスト
 

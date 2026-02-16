@@ -10,18 +10,20 @@ Centrally manage MCP server configuration across Claude Code, VS Code (GitHub Co
          │
          │  (merged in alphabetical order)
          │
-         ├──→ ~/.claude.json                     (Claude Code user config)
-         ├──→ ~/Library/.../Code/User/mcp.json   (VS Code user config)
-         └──→ ~/.gitlab/duo/mcp.json             (GitLab Duo user config)
+         ├──→ ~/.claude.json                               (Claude Code user config)
+         ├──→ ~/Library/.../Claude/claude_desktop_config.json  (Claude Desktop config, macOS only)
+         ├──→ ~/Library/.../Code/User/mcp.json             (VS Code user config)
+         └──→ ~/.gitlab/duo/mcp.json                       (GitLab Duo user config)
 ```
 
 Each tool uses a slightly different JSON format. The script handles the conversion automatically:
 
-| Tool              | Root Key     | Config File Location                       |
-| ----------------- | ------------ | ------------------------------------------ |
-| Claude Code       | `mcpServers` | `~/.claude.json`                           |
-| VS Code / Copilot | `servers`    | `~/Library/.../Code/User/mcp.json` (macOS) |
-| GitLab Duo        | `mcpServers` | `~/.gitlab/duo/mcp.json`                   |
+| Tool              | Root Key     | Config File Location                                 | Platform |
+| ----------------- | ------------ | ---------------------------------------------------- | -------- |
+| Claude Code       | `mcpServers` | `~/.claude.json`                                     | All      |
+| Claude Desktop    | `mcpServers` | `~/Library/.../Claude/claude_desktop_config.json`    | macOS    |
+| VS Code / Copilot | `servers`    | `~/Library/.../Code/User/mcp.json`                   | macOS    |
+| GitLab Duo        | `mcpServers` | `~/.gitlab/duo/mcp.json`                             | All      |
 
 ## Setup
 
@@ -89,6 +91,7 @@ mcp-sync all
 
 # Sync individually
 mcp-sync claude    # Claude Code only
+mcp-sync desktop   # Claude Desktop only (macOS)
 mcp-sync vscode    # VS Code only
 mcp-sync gitlab    # GitLab Duo only
 
@@ -279,7 +282,8 @@ Tests are automatically run on GitHub Actions for Ubuntu 22.04 and 24.04.
 ## Notes
 
 - **Backups**: Existing config files are automatically backed up before overwriting (`.bak.TIMESTAMP`)
-- **Merge behavior**: For Claude Code's `~/.claude.json`, only the `mcpServers` key is overwritten; other keys (theme, etc.) are preserved
+- **Merge behavior**: For Claude Code's `~/.claude.json` and Claude Desktop's `claude_desktop_config.json`, only the `mcpServers` key is overwritten; other keys (preferences, theme, etc.) are preserved
+- **Claude Desktop**: Currently only supported on macOS. The app must be restarted after syncing for changes to take effect
 - **Authentication**: GitLab MCP Server triggers OAuth in the browser on first connection. This is required once per tool.
 - **Restart required**: Restart each tool after syncing for changes to take effect
 - **VS Code paths**: Paths differ between Linux/macOS/Windows. The script auto-detects macOS and Linux. For WSL, adjust `VSCODE_MCP_CONFIG` in the script.
