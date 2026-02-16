@@ -2,6 +2,10 @@
   "$schema": "./master-mcp-schema.json",
   "_comment": "MCP master configuration - edit this file and run sync-mcp.sh to propagate",
   "servers": {
+    "GitLab": {
+      "type": "http",
+      "url": "https://gitlab.com/api/v4/mcp"
+    },
     "memory": {
       "command": "npx",
       "args": [

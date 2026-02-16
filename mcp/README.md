@@ -5,7 +5,10 @@ Centrally manage MCP server configuration across Claude Code, VS Code (GitHub Co
 ## How It Works
 
 ```
-~/.config/mcp/master-mcp.json   ← ★ Single source of truth
+~/.config/mcp/master-mcp.json        ← ★ Base configuration (personal)
+~/.config/mcp/master-mcp.d/*.json    ← ★ Additional configs (work, etc.)
+         │
+         │  (merged in alphabetical order)
          │
          ├──→ ~/.claude.json                     (Claude Code user config)
          ├──→ ~/Library/.../Code/User/mcp.json   (VS Code user config)
@@ -53,7 +56,32 @@ echo 'alias mcp-sync="~/.config/mcp/sync-mcp.sh"' >> ~/.bashrc
 $EDITOR ~/.config/mcp/master-mcp.json
 ```
 
-### 4. Sync
+### 4. (Optional) Add Work-Specific Configs
+
+Create additional configs in `master-mcp.d/`:
+
+```bash
+# Create directory
+mkdir -p ~/.config/mcp/master-mcp.d
+
+# Add work config (managed by work repo)
+# Example: symlink from work dotfiles repo
+ln -s ~/work-dotfiles/mcp/work.json ~/.config/mcp/master-mcp.d/work.json
+
+# Or create directly
+cat > ~/.config/mcp/master-mcp.d/work.json <<'EOF'
+{
+  "servers": {
+    "work-gitlab": {
+      "type": "http",
+      "url": "https://gitlab.company.com/api/v4/mcp"
+    }
+  }
+}
+EOF
+```
+
+### 5. Sync
 
 ```bash
 # Sync to all tools
@@ -69,6 +97,8 @@ mcp-sync project ~/projects/my-app
 ```
 
 ## Master Config Format
+
+### Base Configuration (`master-mcp.json`)
 
 ```json
 {
@@ -99,6 +129,65 @@ mcp-sync project ~/projects/my-app
   }
 }
 ```
+
+### Include Pattern (SSH Config style)
+
+Similar to SSH Config's `Include` directive, you can split configurations into separate files:
+
+```bash
+~/.config/mcp/
+├── master-mcp.json          # Personal base config (managed by dotfiles)
+└── master-mcp.d/            # Additional configs (work, etc.)
+    └── work.json            # Work-specific servers (managed by work repo)
+```
+
+**Personal config** (`master-mcp.json`):
+```json
+{
+  "servers": {
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "env": {
+        "MEMORY_FILE": "${HOME}/.config/mcp/shared-memory.json"
+      }
+    },
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${GITHUB_TOKEN}"
+      }
+    }
+  }
+}
+```
+
+**Work config** (`master-mcp.d/work.json`):
+```json
+{
+  "servers": {
+    "work-gitlab": {
+      "type": "http",
+      "url": "https://gitlab.company.com/api/v4/mcp"
+    },
+    "work-jira": {
+      "command": "npx",
+      "args": ["-y", "@company/mcp-jira"],
+      "env": {
+        "JIRA_URL": "https://company.atlassian.net",
+        "JIRA_TOKEN": "${JIRA_TOKEN}"
+      }
+    }
+  }
+}
+```
+
+**Merge behavior:**
+- Files in `master-mcp.d/` are processed in **alphabetical order**
+- Later files override earlier ones (same server name = overwrite)
+- Personal repo manages `master-mcp.json`, work repo manages `master-mcp.d/work.json`
+- Add `master-mcp.d/` to personal repo's `.gitignore` to keep work configs separate
 
 ### Server Definition Formats
 

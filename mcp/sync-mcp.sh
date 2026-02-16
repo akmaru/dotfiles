@@ -3,7 +3,7 @@
 # sync-mcp.sh - Sync MCP configuration across all tools
 #
 # Usage:
-#   1. Edit ~/.config/mcp/master-mcp.json (master config)
+#   1. Edit $XDG_CONFIG_HOME/mcp/master-mcp.json (master config)
 #   2. Run ./sync-mcp.sh
 #   3. Restart each tool
 #
@@ -18,19 +18,19 @@ set -euo pipefail
 # Configuration
 # ============================================================
 
-MASTER_CONFIG="${HOME}/.config/mcp/master-mcp.json"
+MASTER_CONFIG="${XDG_CONFIG_HOME}/mcp/master-mcp.json"
 
 # Claude Code: mcpServers key in ~/.claude.json
 CLAUDE_CODE_CONFIG="${HOME}/.claude.json"
 
 # VS Code: user-level mcp.json
 # macOS:  ~/Library/Application Support/Code/User/mcp.json
-# Linux:  ~/.config/Code/User/mcp.json
+# Linux:  $XDG_CONFIG_HOME/Code/User/mcp.json
 # Windows (WSL): adjust accordingly
 if [[ "$(uname)" == "Darwin" ]]; then
     VSCODE_MCP_CONFIG="${HOME}/Library/Application Support/Code/User/mcp.json"
 else
-    VSCODE_MCP_CONFIG="${HOME}/.config/Code/User/mcp.json"
+    VSCODE_MCP_CONFIG="${XDG_CONFIG_HOME}/Code/User/mcp.json"
 fi
 
 # GitLab Duo: ~/.gitlab/duo/mcp.json
@@ -46,10 +46,10 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-log_info()  { echo -e "${BLUE}[INFO]${NC}  $1"; }
-log_ok()    { echo -e "${GREEN}[OK]${NC}    $1"; }
-log_warn()  { echo -e "${YELLOW}[WARN]${NC}  $1"; }
-log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
+log_info()  { echo -e "${BLUE}[INFO]${NC}  $1" >&2; }
+log_ok()    { echo -e "${GREEN}[OK]${NC}    $1" >&2; }
+log_warn()  { echo -e "${YELLOW}[WARN]${NC}  $1" >&2; }
+log_error() { echo -e "${RED}[ERROR]${NC} $1" >&2; }
 
 check_jq() {
     if ! command -v jq &> /dev/null; then
@@ -74,9 +74,53 @@ ensure_dir() {
     mkdir -p "$dir"
 }
 
-# Extract server definitions from master config, stripping _comment fields
+# Extract and merge server definitions from master config and master-mcp.d/*.json
+# Files in master-mcp.d/ are merged in alphabetical order, later files override earlier ones
 get_servers() {
-    jq 'del(.["$schema"], ._comment) | .servers | to_entries | map(.value |= del(._comment)) | from_entries' "$MASTER_CONFIG"
+    local config_dir
+    config_dir=$(dirname "$MASTER_CONFIG")
+    local include_dir="${config_dir}/master-mcp.d"
+
+    # Create temporary file for merging
+    local temp_merged
+    temp_merged=$(mktemp)
+
+    # Start with master config
+    jq 'del(.["$schema"], ._comment) | .servers | to_entries | map(.value |= del(._comment)) | from_entries' "$MASTER_CONFIG" > "$temp_merged"
+
+    # Check if master-mcp.d directory exists
+    if [[ -d "$include_dir" ]]; then
+        # Merge configs from master-mcp.d/*.json (sorted order)
+        local conf_count=0
+        for conf in "$include_dir"/*.json; do
+            if [[ -f "$conf" ]]; then
+                log_info "Including: $(basename "$conf")"
+                local temp_additional
+                temp_additional=$(mktemp)
+
+                if jq 'del(.["$schema"], ._comment) | .servers | to_entries | map(.value |= del(._comment)) | from_entries' "$conf" > "$temp_additional" 2>/dev/null; then
+                    # Merge: additional overwrites existing
+                    local temp_result
+                    temp_result=$(mktemp)
+                    jq -s '.[0] * .[1]' "$temp_merged" "$temp_additional" > "$temp_result"
+                    mv "$temp_result" "$temp_merged"
+                    rm -f "$temp_additional"
+                    ((conf_count++))
+                else
+                    log_warn "Skipping invalid JSON: $(basename "$conf")"
+                    rm -f "$temp_additional"
+                fi
+            fi
+        done
+
+        if [[ $conf_count -gt 0 ]]; then
+            log_info "Merged ${conf_count} additional config(s) from master-mcp.d/"
+        fi
+    fi
+
+    # Output merged result
+    cat "$temp_merged"
+    rm -f "$temp_merged"
 }
 
 # ============================================================
@@ -86,8 +130,9 @@ get_servers() {
 sync_claude_code() {
     log_info "Syncing to Claude Code..."
 
-    local servers
-    servers=$(get_servers)
+    local servers_file
+    servers_file=$(mktemp)
+    get_servers > "$servers_file"
 
     ensure_dir "$CLAUDE_CODE_CONFIG"
 
@@ -96,13 +141,14 @@ sync_claude_code() {
         # Merge mcpServers into existing .claude.json (preserves other keys)
         local tmp
         tmp=$(mktemp)
-        jq --argjson servers "$servers" '.mcpServers = $servers' "$CLAUDE_CODE_CONFIG" > "$tmp"
+        jq --slurpfile servers "$servers_file" '.mcpServers = $servers[0]' "$CLAUDE_CODE_CONFIG" > "$tmp"
         mv "$tmp" "$CLAUDE_CODE_CONFIG"
     else
         # Create new file
-        jq -n --argjson servers "$servers" '{"mcpServers": $servers}' > "$CLAUDE_CODE_CONFIG"
+        jq -n --slurpfile servers "$servers_file" '{"mcpServers": $servers[0]}' > "$CLAUDE_CODE_CONFIG"
     fi
 
+    rm -f "$servers_file"
     log_ok "Claude Code: $CLAUDE_CODE_CONFIG"
 }
 
@@ -113,8 +159,9 @@ sync_claude_code() {
 sync_vscode() {
     log_info "Syncing to VS Code (GitHub Copilot)..."
 
-    local servers
-    servers=$(get_servers)
+    local servers_file
+    servers_file=$(mktemp)
+    get_servers > "$servers_file"
 
     ensure_dir "$VSCODE_MCP_CONFIG"
 
@@ -123,12 +170,13 @@ sync_vscode() {
         backup_file "$VSCODE_MCP_CONFIG"
         local tmp
         tmp=$(mktemp)
-        jq --argjson servers "$servers" '.servers = $servers' "$VSCODE_MCP_CONFIG" > "$tmp"
+        jq --slurpfile servers "$servers_file" '.servers = $servers[0]' "$VSCODE_MCP_CONFIG" > "$tmp"
         mv "$tmp" "$VSCODE_MCP_CONFIG"
     else
-        jq -n --argjson servers "$servers" '{"servers": $servers}' > "$VSCODE_MCP_CONFIG"
+        jq -n --slurpfile servers "$servers_file" '{"servers": $servers[0]}' > "$VSCODE_MCP_CONFIG"
     fi
 
+    rm -f "$servers_file"
     log_ok "VS Code:     $VSCODE_MCP_CONFIG"
 }
 
@@ -139,15 +187,17 @@ sync_vscode() {
 sync_gitlab_duo() {
     log_info "Syncing to GitLab Duo..."
 
-    local servers
-    servers=$(get_servers)
+    local servers_file
+    servers_file=$(mktemp)
+    get_servers > "$servers_file"
 
     ensure_dir "$GITLAB_DUO_CONFIG"
     backup_file "$GITLAB_DUO_CONFIG"
 
     # GitLab Duo uses the "mcpServers" key
-    jq -n --argjson servers "$servers" '{"mcpServers": $servers}' > "$GITLAB_DUO_CONFIG"
+    jq -n --slurpfile servers "$servers_file" '{"mcpServers": $servers[0]}' > "$GITLAB_DUO_CONFIG"
 
+    rm -f "$servers_file"
     log_ok "GitLab Duo:  $GITLAB_DUO_CONFIG"
 }
 
@@ -165,25 +215,28 @@ sync_project() {
 
     log_info "Syncing project-level config: $project_dir"
 
-    local servers
-    servers=$(get_servers)
+    local servers_file
+    servers_file=$(mktemp)
+    get_servers > "$servers_file"
 
     # Claude Code: <project>/.mcp.json
-    jq -n --argjson servers "$servers" '{"mcpServers": $servers}' \
+    jq -n --slurpfile servers "$servers_file" '{"mcpServers": $servers[0]}' \
         > "${project_dir}/.mcp.json"
     log_ok "  Claude Code:  ${project_dir}/.mcp.json"
 
     # VS Code: <project>/.vscode/mcp.json
     mkdir -p "${project_dir}/.vscode"
-    jq -n --argjson servers "$servers" '{"servers": $servers}' \
+    jq -n --slurpfile servers "$servers_file" '{"servers": $servers[0]}' \
         > "${project_dir}/.vscode/mcp.json"
     log_ok "  VS Code:      ${project_dir}/.vscode/mcp.json"
 
     # GitLab Duo: <project>/.gitlab/duo/mcp.json
     mkdir -p "${project_dir}/.gitlab/duo"
-    jq -n --argjson servers "$servers" '{"mcpServers": $servers}' \
+    jq -n --slurpfile servers "$servers_file" '{"mcpServers": $servers[0]}' \
         > "${project_dir}/.gitlab/duo/mcp.json"
     log_ok "  GitLab Duo:   ${project_dir}/.gitlab/duo/mcp.json"
+
+    rm -f "$servers_file"
 }
 
 # ============================================================

@@ -89,7 +89,11 @@ ln -sf ${DOT_PATH}/.ssh/config ~/.ssh/config
 mkdir -p ~/.ssh/config.d
 
 #
+# mcp
+#
+"${DOT_PATH}"/install/mcp.sh
+
+#
 # Claude Code
 #
 "${DOT_PATH}"/install/claude_code.sh
-
