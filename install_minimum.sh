@@ -8,8 +8,6 @@ case $OSTYPE in
     ${DOT_PATH}/install/ubuntu_minimum.sh
     ;;
   darwin*)
-    # TODO: separase install/mac.sh
-    ${DOT_PATH}/install/mac.sh
     ;;
   *)
     echo "$0 not support to install in ${OSTYPE}"
@@ -52,7 +50,11 @@ source "${DOT_PATH}"/install/mise.sh
 ln -sf ${DOT_PATH}/.zshenv ~/.zshenv
 ln -sf ${DOT_PATH}/.zshrc ~/.zshrc
 ln -sf ${DOT_PATH}/.p10k.zsh ~/.p10k.zsh
-sudo chsh "$(whoami)" -s "$(which zsh)"
+case $OSTYPE in
+  linux*)
+    sudo chsh "$(whoami)" -s "$(which zsh)"
+    ;;
+esac
 
 #
 # tmux

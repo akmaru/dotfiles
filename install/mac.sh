@@ -6,7 +6,7 @@ set -euox pipefail
 # brew install git
 
 ln -sf $HOME/dotfiles/.gitconfig_mac $HOME/.gitconfig_os
-# ln -sf $HOME/dotfiles/Brewfile $HONE/Brewfile
+ln -sf $HOME/dotfiles/Brewfile $HOME/Brewfile
 
 # Install packages
 brew update && brew upgrade

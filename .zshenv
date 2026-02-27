@@ -29,6 +29,7 @@ export XDG_STATE_HOME=$HOME/.local/state
 #
 # Path
 #
+export PATH=/usr/local/bin:/usr/local/sbin:$PATH
 export PATH=$XDG_BIN_HOME:$PATH
 
 #
