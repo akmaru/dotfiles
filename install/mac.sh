@@ -5,7 +5,6 @@ set -euox pipefail
 # /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 # brew install git
 
-ln -sf $HOME/dotfiles/.gitconfig_mac $HOME/.gitconfig_os
 ln -sf $HOME/dotfiles/Brewfile $HOME/Brewfile
 
 # Install packages

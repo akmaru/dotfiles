@@ -8,6 +8,7 @@ case $OSTYPE in
     ${DOT_PATH}/install/ubuntu_minimum.sh
     ;;
   darwin*)
+    ${DOT_PATH}/install/mac_minimum.sh
     ;;
   *)
     echo "$0 not support to install in ${OSTYPE}"
