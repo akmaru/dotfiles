@@ -63,6 +63,7 @@ ln -sf ${DOT_PATH}/.tmux.conf ~/.tmux.conf
 # git
 #
 ln -sf ${DOT_PATH}/.gitconfig ~/.gitconfig
+ln -sf ${DOT_PATH}/.gitignore_global ~/.gitignore_global
 
 #
 # vim
