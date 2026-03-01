@@ -6,13 +6,11 @@ ln -sf ~/dotfiles/.gitconfig_linux ~/.gitconfig_os
 packages=("
   ca-certificates \
   curl \
-  fd-find \
   git \
   libsecret-1-0 \
   libsecret-1-dev \
   make \
   neovim \
-  ripgrep \
   tmux \
   zsh \
 ")

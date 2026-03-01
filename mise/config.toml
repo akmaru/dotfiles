@@ -11,12 +11,20 @@ compile = false
 # global tool versions go here
 # you can set these with `mise use -g`
 
+eza = "latest"
+fd = "latest"
 fzf = "latest"
 ghq = "latest"
 jq = "latest"
+ripgrep = "latest"
 
 # Programming Languages
+## C/C++
+cmake = "latest"
+ninja = "latest"
+
 ## Python
+pipx = "latest"
 uv = "latest"
 
 ## Golang
@@ -27,6 +35,12 @@ nodejs = "lts"
 
 ## Rust
 rust = "stable"
+
+## ansible
+ansible = "latest"
+
+## terraform
+terraform = "latest"
 
 # CLI Tools
 ## AWS CLI
