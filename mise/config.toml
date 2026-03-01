@@ -25,6 +25,9 @@ golang = "latest"
 ## Node.js
 nodejs = "lts"
 
+## Rust
+rust = "stable"
+
 # CLI Tools
 ## AWS CLI
 awscli = "latest"
@@ -37,4 +40,3 @@ glab = "latest"
 
 # GCP CLI
 gcloud = "latest"
-
