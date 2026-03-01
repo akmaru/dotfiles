@@ -8,6 +8,7 @@
       "WebFetch",
       "Bash(echo *)",
       "Bash(cat *)",
+      "Bash(time *)",
       "Bash(gh auth status:*)"
     ]
   }
