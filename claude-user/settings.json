@@ -6,8 +6,12 @@
       "Glob",
       "Grep",
       "WebFetch",
-      "Bash(echo *)",
       "Bash(cat *)",
+      "Bash(curl *)",
+      "Bash(echo *)",
+      "Bash(find *)",
+      "Bash(grep *)",
+      "Bash(ls *)",
       "Bash(time *)",
       "Bash(gh auth status:*)"
     ]
