@@ -28,14 +28,22 @@ if [ -f "${DOT_PATH}/claude-user/CLAUDE.md" ]; then
   echo "Linked CLAUDE.md"
 fi
 
-if [ -d "${DOT_PATH}/claude-user/agents" ]; then
-  ln -sf "${DOT_PATH}/claude-user/agents" "${HOME}/.claude/agents"
-  echo "Linked agents/"
-fi
+link_dir_files() {
+  local src="$1"
+  local dst="$2"
+  mkdir -p "$dst"
+  [ -d "$src" ] || return 0
+  find "$src" -type f | while read -r file; do
+    local rel="${file#${src}/}"
+    local dst_file="${dst}/${rel}"
+    mkdir -p "$(dirname "$dst_file")"
+    ln -sf "$file" "$dst_file"
+    echo "Linked ${rel}"
+  done
+}
 
-if [ -d "${DOT_PATH}/claude-user/rules" ]; then
-  ln -sf "${DOT_PATH}/claude-user/rules" "${HOME}/.claude/rules"
-  echo "Linked rules/"
-fi
+link_dir_files "${DOT_PATH}/claude-user/agents" "${HOME}/.claude/agents"
+link_dir_files "${DOT_PATH}/claude-user/rules" "${HOME}/.claude/rules"
+link_dir_files "${DOT_PATH}/claude-user/skills" "${HOME}/.claude/skills"
 
 echo "Claude Code configuration linked successfully"
