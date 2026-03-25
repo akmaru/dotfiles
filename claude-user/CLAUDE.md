@@ -108,6 +108,13 @@
 - 複数の独立したツール呼び出しは並列実行
 - 依存関係がある場合は順次実行
 
+
+## Work-Specific Instructions
+
+所属会社用の `CLAUDE.work.md` がある場合、下記の指示も参照してください。
+
+@~/.claude/CLAUDE.work.md
+
 ## Project-Specific Instructions
 
 プロジェクト固有の `CLAUDE.md` がある場合、そちらの指示を優先してください。このグローバル設定は、プロジェクト固有の指示がない場合のデフォルトとして機能します。
