@@ -11,13 +11,24 @@ curl -fsSL https://claude.ai/install.sh | bash
 # Create ~/.claude directory if it doesn't exist
 mkdir -p "${HOME}/.claude"
 
+# Create and merge settings.json if it doesn't exist, or merge with existing settings.
+#
+# Note: Not symlink settings.json directly to avoid confusing another settings on updates. Instead, we merge
+# 
+# Note: Using claude-user/ instead of .claude/ to avoid confusion with
+# project-level .claude/ directory when working on the dotfiles repository
+#
+SETTINGS="${HOME}/.claude/settings.json"
+if [ ! -f "${SETTINGS}" ]; then
+  echo '{}' > "${SETTINGS}"
+fi
+jq -s '.[0] * .[1]' "${SETTINGS}" "${DOT_PATH}/claude-user/settings.json" > "${SETTINGS}.tmp" && mv "${SETTINGS}.tmp" "${SETTINGS}"
+echo "Merged settings into ${SETTINGS}"
+
 # Symlink only configuration files (not runtime data)
 # This allows Claude Code to create cache, debug, etc. in ~/.claude
 # while keeping only settings under version control
 #
-# Note: Using claude-user/ instead of .claude/ to avoid confusion with
-# project-level .claude/ directory when working on the dotfiles repository
-
 if [ -f "${DOT_PATH}/claude-user/settings.json" ]; then
   ln -sf "${DOT_PATH}/claude-user/settings.json" "${HOME}/.claude/settings.json"
   echo "Linked settings.json"
