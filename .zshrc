@@ -119,6 +119,18 @@ fi
 alias emacs='TERM=xterm-256color emacs -nw'
 alias egdb='emacs -f gud-gdb'
 
+# ssh with iTerm2 tmux integration
+# Usage: ssht <host> [session_name]
+ssht() {
+  local host="$1"
+  local session="${2:-main}"
+  if ! lsof -i :9999 -sTCP:LISTEN -t &>/dev/null; then
+    echo "Starting notify-server..."
+    "$HOME/.local/bin/notify-server.sh" &disown
+  fi
+  ssh -t -R 9999:localhost:9999 "$host" tmux -CC new-session -A -s "$session"
+}
+
 
 #
 # Functions
