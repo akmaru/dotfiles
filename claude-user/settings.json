@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "claude-notify.sh 'Waiting for approval' 'Claude'"
+            "command": "MSG=$(jq -r '.message // \"Waiting for approval\"') && claude-notify.sh \"$MSG\" 'Claude'"
           }
         ]
       }
@@ -26,7 +26,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "claude-notify.sh 'Task completed' 'Claude'"
+            "command": "claude-stop-notify.sh"
           }
         ]
       }
