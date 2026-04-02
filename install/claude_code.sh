@@ -57,4 +57,8 @@ link_dir_files "${DOT_PATH}/claude-user/agents" "${HOME}/.claude/agents"
 link_dir_files "${DOT_PATH}/claude-user/rules" "${HOME}/.claude/rules"
 link_dir_files "${DOT_PATH}/claude-user/skills" "${HOME}/.claude/skills"
 
+# Install notify script for Claude Code
+ln -sf ${DOT_PATH}/bin/claude-notify.sh $HOME/.local/bin/claude-notify.sh
+ln -sf ${DOT_PATH}/bin/claude-stop-notify.sh $HOME/.local/bin/claude-stop-notify.sh
+
 echo "Claude Code configuration linked successfully"

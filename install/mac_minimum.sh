@@ -14,6 +14,5 @@ ln -sf ${DOT_PATH}/Brewfile_minimum $HOME/Brewfile_minimum
 brew update && brew upgrade
 brew bundle --file=$HOME/Brewfile_minimum
 
-ln -sf ${DOT_PATH}/bin/claude-notify.sh $HOME/.local/bin/claude-notify.sh
 ln -sf ${DOT_PATH}/bin/notify-server.sh $HOME/.local/bin/notify-server.sh
 ln -sf ${DOT_PATH}/bin/iterm-jump.sh $HOME/.local/bin/iterm-jump.sh
