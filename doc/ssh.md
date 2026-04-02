@@ -90,7 +90,7 @@ Host myserver
 
 ```json
 "hooks": {
-  "Notification": [{ "hooks": [{ "type": "command", "command": "claude-notify.sh 'Waiting for approval' 'Claude'" }] }],
-  "Stop":         [{ "hooks": [{ "type": "command", "command": "claude-notify.sh 'Task completed' 'Claude'" }] }]
+  "Notification": [{ "hooks": [{ "type": "command", "command": "MSG=$(jq -r '.message // \"Waiting for approval\"') && claude-notify.sh \"$MSG\" 'Claude'" }] }],
+  "Stop":         [{ "hooks": [{ "type": "command", "command": "claude-stop-notify.sh" }] }]
 }
 ```
