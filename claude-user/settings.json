@@ -16,5 +16,27 @@
       "Bash(time *)",
       "Bash(gh auth status:*)"
     ]
+  },
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "claude-notify.sh 'Waiting for approval' 'Claude'"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "claude-notify.sh 'Task completed' 'Claude'"
+          }
+        ]
+      }
+    ]
   }
 }
