@@ -24,6 +24,7 @@ cmake = "latest"
 ninja = "latest"
 
 ## Python
+python = "3.12"
 pipx = "latest"
 uv = "latest"
 
