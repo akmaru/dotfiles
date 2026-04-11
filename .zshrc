@@ -120,15 +120,25 @@ alias emacs='TERM=xterm-256color emacs -nw'
 alias egdb='emacs -f gud-gdb'
 
 # ssh with iTerm2 tmux integration
-# Usage: ssht <host> [session_name]
+# Usage: ssht [ssh_options...] <host> [session_name]
 ssht() {
+  local -a ssh_opts=()
+  while [[ $# -gt 0 && "$1" == -* ]]; do
+    ssh_opts+=("$1")
+    # -o, -L, -R, -D, -J, -i etc. take a separate argument
+    if [[ "$1" =~ ^-[oLRDJibceFIlmOpSwW]$ ]]; then
+      shift
+      ssh_opts+=("$1")
+    fi
+    shift
+  done
   local host="$1"
   local session="${2:-main}"
   if ! lsof -i :9999 -sTCP:LISTEN -t &>/dev/null; then
     echo "Starting notify-server..."
     "$HOME/.local/bin/notify-server.sh" &disown
   fi
-  ssh -t -R 9999:localhost:9999 "$host" tmux -CC new-session -A -s "$session"
+  ssh -t -R 9999:localhost:9999 "${ssh_opts[@]}" "$host" tmux -CC new-session -A -s "$session"
 }
 
 
