@@ -123,17 +123,22 @@ alias egdb='emacs -f gud-gdb'
 # Usage: ssht [ssh_options...] <host> [session_name]
 ssht() {
   local -a ssh_opts=()
-  while [[ $# -gt 0 && "$1" == -* ]]; do
-    ssh_opts+=("$1")
-    # -o, -L, -R, -D, -J, -i etc. take a separate argument
-    if [[ "$1" =~ ^-[oLRDJibceFIlmOpSwW]$ ]]; then
-      shift
+  local -a positional=()
+  while [[ $# -gt 0 ]]; do
+    if [[ "$1" == -* ]]; then
       ssh_opts+=("$1")
+      # -o, -L, -R, -D, -J, -i etc. take a separate argument
+      if [[ "$1" =~ ^-[oLRDJibceFIlmOpSwW]$ ]]; then
+        shift
+        ssh_opts+=("$1")
+      fi
+    else
+      positional+=("$1")
     fi
     shift
   done
-  local host="$1"
-  local session="${2:-main}"
+  local host="${positional[1]}"
+  local session="${positional[2]:-main}"
   if ! lsof -i :9999 -sTCP:LISTEN -t &>/dev/null; then
     echo "Starting notify-server..."
     "$HOME/.local/bin/notify-server.sh" &disown
@@ -244,7 +249,7 @@ fshow() {
 FZF-EOF"
 }
 if type "direnv" > /dev/null 2>&1; then
-  eval "$(direnv hook bash)"
+  eval "$(direnv hook zsh)"
 fi
 
 # frepo - ghq cd browser
