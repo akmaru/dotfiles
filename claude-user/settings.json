@@ -13,31 +13,6 @@
     ],
     "defaultMode": "auto"
   },
-  "hooks": {
-    "Notification": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "MSG=$(jq -r '.message // \"Waiting for approval\"') && claude-notify.sh \"$MSG\" 'Claude'"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "claude-stop-notify.sh"
-          }
-        ]
-      }
-    ]
-  },
   "voiceEnabled": true,
-  "skipAutoPermissionPrompt": true,
-  "enabledPlugins": {
-    "rust-analyzer-lsp@claude-plugins-official": true
-  }
+  "skipAutoPermissionPrompt": true
 }
