@@ -263,3 +263,19 @@ bindkey "^]" ghq-fzf
 
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+
+#
+# aws config (merge ~/.aws/conf.d/*.conf -> ~/.aws/config)
+#
+() {
+  local confd=~/.aws/conf.d out=~/.aws/config
+  local -a parts=( $confd/*.conf(-.N) )   # symlink を辿った regular file のみ / nullglob
+  (( $#parts )) || return
+  local newest=$parts[1] f
+  for f in $parts[2,-1]; do [[ $f -nt $newest ]] && newest=$f; done
+  if [[ ! -f $out || -L $out || $newest -nt $out ]]; then
+    print "# AUTO-GENERATED from ~/.aws/conf.d/*.conf - do not edit." >| $out
+    cat $parts >> $out
+  fi
+}

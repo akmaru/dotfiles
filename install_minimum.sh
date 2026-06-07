@@ -94,6 +94,13 @@ ln -sf ${DOT_PATH}/.ssh/config ~/.ssh/config
 mkdir -p ~/.ssh/config.d
 
 #
+# aws
+#
+mkdir -p ~/.aws/conf.d
+ln -sf ${DOT_PATH}/.aws/conf.d/personal.conf ~/.aws/conf.d/personal.conf
+[ -L ~/.aws/config ] && rm -f ~/.aws/config
+
+#
 # mcp
 #
 "${DOT_PATH}"/install/mcp.sh
