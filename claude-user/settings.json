@@ -13,6 +13,7 @@
     ],
     "defaultMode": "auto"
   },
+  "skipAutoPermissionPrompt": true,
   "voiceEnabled": true,
-  "skipAutoPermissionPrompt": true
+  "tui": "fullscreen"
 }
