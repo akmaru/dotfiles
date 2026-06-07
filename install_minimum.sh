@@ -51,6 +51,12 @@ source "${DOT_PATH}"/install/mise.sh
 ln -sf ${DOT_PATH}/.zshenv ~/.zshenv
 ln -sf ${DOT_PATH}/.zshrc ~/.zshrc
 ln -sf ${DOT_PATH}/.p10k.zsh ~/.p10k.zsh
+# 実ディレクトリ/ファイルが先に存在すると symlink が入れ子になるため、その場合は中断
+if [ -e "${XDG_CONFIG_HOME}/zsh" ] && [ ! -L "${XDG_CONFIG_HOME}/zsh" ]; then
+  echo "Error: ${XDG_CONFIG_HOME}/zsh already exists. Remove it and re-run: rm -rf ${XDG_CONFIG_HOME}/zsh" >&2
+  exit 1
+fi
+ln -sfn ${DOT_PATH}/zsh ${XDG_CONFIG_HOME}/zsh
 case $OSTYPE in
   linux*)
     sudo chsh "$(whoami)" -s "$(which zsh)"

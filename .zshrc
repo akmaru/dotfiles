@@ -7,6 +7,23 @@ HISTFILE=$HOME/.zhistory
 
 
 #
+# Module import (load ~/.config/zsh/<name>.zsh)
+#
+ZSH_CONFIG_DIR=${XDG_CONFIG_HOME:-$HOME/.config}/zsh
+import() {
+  local name f
+  for name in "$@"; do
+    f="$ZSH_CONFIG_DIR/$name.zsh"
+    if [[ -r $f ]]; then
+      source "$f"
+    else
+      print -u2 "import: module not found: $name ($f)"
+    fi
+  done
+}
+
+
+#
 # Color Settings
 #
 autoload -Uz colors && colors
@@ -266,28 +283,6 @@ bindkey "^]" ghq-fzf
 
 
 #
-# aws config (merge ~/.aws/conf.d/*.conf -> ~/.aws/config)
+# aws
 #
-() {
-  local confd=~/.aws/conf.d out=~/.aws/config
-  local -a parts=( $confd/*.conf(-.N) )   # symlink を辿った regular file のみ / nullglob
-  (( $#parts )) || return
-  local newest=$parts[1] f
-  for f in $parts[2,-1]; do [[ $f -nt $newest ]] && newest=$f; done
-  if [[ ! -f $out || -L $out || $newest -nt $out ]]; then
-    print "# AUTO-GENERATED from ~/.aws/conf.d/*.conf - do not edit." >| $out
-    cat $parts >> $out
-  fi
-}
-
-#
-# aws: SSO の一時認証情報を環境変数にエクスポート
-# usage: awsenv [profile]  (default: maru)
-#
-awsenv() {
-  local profile=${1:-maru}
-  # セッション切れなら自動ログイン
-  aws sts get-caller-identity --profile $profile &>/dev/null || aws sso login --profile $profile || return
-  eval "$(aws configure export-credentials --profile $profile --format env)"
-  export AWS_DEFAULT_REGION=$(aws configure get region --profile $profile)
-}
+import aws
