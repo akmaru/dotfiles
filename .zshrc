@@ -279,3 +279,15 @@ bindkey "^]" ghq-fzf
     cat $parts >> $out
   fi
 }
+
+#
+# aws: SSO の一時認証情報を環境変数にエクスポート
+# usage: awsenv [profile]  (default: maru)
+#
+awsenv() {
+  local profile=${1:-maru}
+  # セッション切れなら自動ログイン
+  aws sts get-caller-identity --profile $profile &>/dev/null || aws sso login --profile $profile || return
+  eval "$(aws configure export-credentials --profile $profile --format env)"
+  export AWS_DEFAULT_REGION=$(aws configure get region --profile $profile)
+}
