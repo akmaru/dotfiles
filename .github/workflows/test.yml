@@ -72,6 +72,11 @@ jobs:
       - name: Run install_minimum.sh
         run: ./install_minimum.sh
 
+      # mise installs tools (jq, etc.) under its shims dir, which a fresh step's
+      # PATH does not include. Expose them to the test steps below.
+      - name: Add mise shims to PATH
+        run: echo "${HOME}/.local/share/mise/shims" >> "$GITHUB_PATH"
+
       - name: Check the login shell
         run: cat /etc/passwd | grep $(whoami)
 
