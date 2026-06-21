@@ -19,6 +19,11 @@ case $OSTYPE in
 esac
 
 #
+# AWS
+#
+${DOT_PATH}/install/aws.sh
+
+#
 # Rust
 #
 #./install_rust.sh
