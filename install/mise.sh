@@ -9,6 +9,11 @@ if [[ -z "${DOT_PATH:-}" ]]; then
 fi
 
 MISE_USER_DIR="${HOME}/.config/mise"
+# Pin mise: 2026.6.x regressed pipx installs by injecting an --uploaded-prior-to
+# pip arg that uv (pipx's backend) rejects ("unexpected argument"), which breaks
+# `mise install` for ansible and aborts install_minimum.sh. Pin to the last known
+# good release until the upstream regression is fixed. Override via MISE_VERSION.
+export MISE_VERSION="${MISE_VERSION:-v2026.2.23}"
 curl https://mise.run | sh
 
 mkdir -p ${MISE_USER_DIR}
