@@ -90,4 +90,7 @@ jobs:
       - name: Test aws (session-manager-plugin)
         run: ./test/test_aws.sh
 
+      - name: Test git config
+        run: ./test/test_git.sh
+
   
