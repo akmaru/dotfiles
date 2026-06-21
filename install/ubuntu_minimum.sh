@@ -1,7 +1,10 @@
 #!/bin/bash
 set -euox pipefail
 
-ln -sf ~/dotfiles/.gitconfig_linux ~/.gitconfig_os
+# Set DOT_PATH if not already set (exported by install_minimum.sh when sourced)
+DOT_PATH="${DOT_PATH:-$(cd "$(dirname "$0")/.."; pwd)}"
+
+ln -sf "${DOT_PATH}/.gitconfig_linux" ~/.gitconfig_os
 
 packages=("
   ca-certificates \
