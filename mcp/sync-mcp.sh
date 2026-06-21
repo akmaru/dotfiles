@@ -214,7 +214,10 @@ get_servers() {
                     ' "$temp_merged" "$temp_additional" > "$temp_result"
                     mv "$temp_result" "$temp_merged"
                     rm -f "$temp_additional"
-                    ((conf_count++))
+                    # Use arithmetic assignment, not ((conf_count++)): the latter
+                    # returns exit 1 when the pre-increment value is 0, which trips
+                    # `set -e` and aborts the script.
+                    conf_count=$((conf_count + 1))
                 else
                     log_warn "Skipping invalid JSON: $(basename "$conf")"
                     rm -f "$temp_additional"
