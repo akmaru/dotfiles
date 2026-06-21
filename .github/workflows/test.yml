@@ -57,6 +57,9 @@ jobs:
       contents: read
       packages: read
     strategy:
+      # Run both OS to completion; a failure on one must not cancel the other
+      # (e.g. the git 2.34 conditional-include check is 22.04-specific).
+      fail-fast: false
       matrix:
         os: [ubuntu22.04, ubuntu24.04]
     container:
