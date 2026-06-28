@@ -78,7 +78,7 @@ sync-mcp.sh gitlab    # GitLab Duo
 
 ## テスト
 
-GitHub Actions で Ubuntu 22.04 / 24.04 の Docker イメージをビルドし、`install_minimum.sh` の動作を検証する。
+GitHub Actions で Ubuntu 24.04 / 26.04 の Docker イメージをビルドし、`install_minimum.sh` の動作を検証する。
 
 - ワークフロー: `.github/workflows/test.yml`
 - Docker 環境: `test/docker-compose.yml` + `test/ubuntu.Dockerfile`

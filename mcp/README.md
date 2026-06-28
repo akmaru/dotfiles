@@ -277,7 +277,7 @@ Tests include:
 
 The test suite creates an isolated environment and does not modify your actual config files.
 
-Tests are automatically run on GitHub Actions for Ubuntu 22.04 and 24.04.
+Tests are automatically run on GitHub Actions for Ubuntu 24.04 and 26.04.
 
 ## Notes
 
