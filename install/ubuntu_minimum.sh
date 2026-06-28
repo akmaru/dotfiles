@@ -23,7 +23,7 @@ packages=("
 . /etc/os-release
 
 case $VERSION_CODENAME in
-  jammy | noble)
+  noble | resolute)
     ;;
   *)
     echo "$0 not support to install in ${VERSION_CODENAME}"
