@@ -34,5 +34,5 @@ sudo apt-get update \
   && sudo -E apt-get install -y --no-install-recommends $packages \
   && sudo apt-get clean && sudo rm -rf /var/lib/apt/lists/*
  
-# Build gnome-keyring (for git credential)
+# Build libsecret credential helper (for git credential)
 sudo make -C /usr/share/doc/git/contrib/credential/libsecret || true
