@@ -1,27 +1,14 @@
-cask "alfred"
 cask "bettertouchtool"
-cask "discord"
 cask "font-hackgen"
 cask "font-hackgen-nerd"
-cask "google-chrome"
-cask "google-drive"
 cask "google-japanese-ime"
 cask "iterm2"
 cask "karabiner-elements"
-cask "microsoft-auto-update"
-cask "microsoft-office"
-cask "tunnelblick"
-cask "visual-studio-code"
-cask "xquartz"
-cask "zoom"
-mas "Alfred", id: 405843582
 mas "BetterSnapTool", id: 417375580
-mas "GarageBand", id: 682658836
-mas "iMovie", id: 408981434
-mas "Keynote", id: 409183694
-mas "Kindle", id: 405399194
+mas "Kindle", id: 302584613
 mas "LINE", id: 539883307
-mas "Microsoft Remote Desktop", id: 1295203466
-mas "Numbers", id: 409203825
-mas "Pages", id: 409201541
+mas "Microsoft Excel", id: 462058435
+mas "Microsoft PowerPoint", id: 462062816
+mas "Microsoft Word", id: 462054704
 mas "Slack", id: 803453959
+mas "Windows App", id: 1295203466
