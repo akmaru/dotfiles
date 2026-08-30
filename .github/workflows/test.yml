@@ -117,3 +117,16 @@ jobs:
         run: ./test/test_git.sh
 
   
+  # Brewfile entries can only be exercised on macOS, and a runner has none of
+  # them installed, so this validates that every entry still resolves rather
+  # than installing anything.
+  brewfile:
+    runs-on: macos-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test Brewfile
+        run: ./test/test_brewfile.sh
