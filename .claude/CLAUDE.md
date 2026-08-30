@@ -26,10 +26,11 @@ Windows / macOS / Ubuntu 対応の個人用 dotfiles リポジトリ。
 │   ├── sync-mcp.sh           # 設定を Claude Code/Desktop, VS Code, GitLab Duo に同期
 │   └── README.md             # MCP 設定の詳細
 ├── Brewfile                  # macOS Homebrew パッケージ
-└── test/                     # テスト用 Docker 環境
+└── test/                     # テスト環境とテストスクリプト
     ├── docker-compose.yml
     ├── ubuntu.Dockerfile
-    └── init_env.sh
+    ├── init_env.sh
+    └── test_*.sh             # 各コンポーネントのテスト
 ```
 
 ## インストール
@@ -78,11 +79,24 @@ sync-mcp.sh gitlab    # GitLab Duo
 
 ## テスト
 
-GitHub Actions で Ubuntu 24.04 / 26.04 の Docker イメージをビルドし、`install_minimum.sh` の動作を検証する。
+GitHub Actions (`.github/workflows/test.yml`) で 2 系統のテストを実行する。
 
-- ワークフロー: `.github/workflows/test.yml`
+### Linux (`build-image` / `test` ジョブ)
+
+Ubuntu 24.04 / 26.04 の Docker イメージをビルドし、`install_minimum.sh` の動作を検証する。
+
 - Docker 環境: `test/docker-compose.yml` + `test/ubuntu.Dockerfile`
 - 環境変数: `test/init_env.sh` で HOST_UID/GID を `.env` に書き出し、`source .env` でエクスポートしてからビルドする
+- コンポーネント別: `test/test_mcp_sync.sh`, `test_sheldon.sh`, `test_mise.sh`, `test_aws.sh`, `test_git.sh`
+
+### macOS (`brewfile` ジョブ)
+
+`test/test_brewfile.sh` で `Brewfile` / `Brewfile_minimum` の各エントリが実在するかを検証する。runner には対象パッケージが入っていないため `brew bundle check` は使えず、代わりに以下を確認する。
+
+- formula / cask が Homebrew に存在するか
+- mas のアプリ ID が App Store に存在するか (ストアフロントは `MAS_COUNTRY`、既定は `jp`)
+
+mas エントリの名前は `brew bundle` からは無視される (ID でインストールされる) ため、名前の一致は検証せずログに出力するのみ。
 
 ## コミットメッセージ規約
 
