@@ -104,4 +104,8 @@ mkdir -p ~/.ssh/config.d
 #
 mkdir -p ~/.aws/conf.d
 ln -sf ${DOT_PATH}/.aws/conf.d/personal.conf ~/.aws/conf.d/personal.conf
-[ -L ~/.aws/config ] && rm -f ~/.aws/config
+# set -e 下で末尾に置くと、リンクでない場合に && の終了コード 1 がそのまま
+# スクリプトの終了コードになるため if で書く
+if [ -L ~/.aws/config ]; then
+  rm -f ~/.aws/config
+fi
