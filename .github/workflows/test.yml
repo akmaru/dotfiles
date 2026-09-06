@@ -86,20 +86,8 @@ jobs:
       - name: Run zsh
         run: zsh
 
-      # test_mcp_sync.sh runs sync-mcp.sh under an isolated $HOME. The only jq in
-      # the image is the mise shim, which re-resolves against $HOME and hangs when
-      # $HOME is reassigned. Install a real jq so the MCP test uses a stable binary.
-      # The per-component test scripts set up their own PATH (mise/sheldon), so no
-      # global mise activation is needed here.
-      - name: Install jq (for MCP sync test)
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends jq
-
       # Run every test step even if an earlier one fails, so one failure does not
       # mask the rest (only skip when the job is cancelled).
-      - name: Test MCP sync script
-        if: ${{ !cancelled() }}
-        run: ./test/test_mcp_sync.sh
-
       - name: Test sheldon
         if: ${{ !cancelled() }}
         run: ./test/test_sheldon.sh

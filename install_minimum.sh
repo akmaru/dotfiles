@@ -105,13 +105,3 @@ mkdir -p ~/.ssh/config.d
 mkdir -p ~/.aws/conf.d
 ln -sf ${DOT_PATH}/.aws/conf.d/personal.conf ~/.aws/conf.d/personal.conf
 [ -L ~/.aws/config ] && rm -f ~/.aws/config
-
-#
-# mcp
-#
-"${DOT_PATH}"/install/mcp.sh
-
-#
-# Claude Code
-#
-"${DOT_PATH}"/install/claude_code.sh

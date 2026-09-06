@@ -156,11 +156,7 @@ ssht() {
   done
   local host="${positional[1]}"
   local session="${positional[2]:-main}"
-  if ! lsof -i :9999 -sTCP:LISTEN -t &>/dev/null; then
-    echo "Starting notify-server..."
-    "$HOME/.local/bin/notify-server.sh" &disown
-  fi
-  ssh -t -R 9999:localhost:9999 "${ssh_opts[@]}" "$host" tmux -CC new-session -A -s "$session"
+  ssh -t "${ssh_opts[@]}" "$host" tmux -CC new-session -A -s "$session"
 }
 
 
