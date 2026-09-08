@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# test_git.sh - Test git configuration (identity, OS include, conditional
-# include, credential helper).
+# test_git.sh - Test git configuration (identity, conditional include,
+# credential helper).
 #
 # Two scopes:
 #  - Part A uses the real $HOME to verify the install wired the symlinks and
@@ -16,16 +16,24 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
+# XDG / PATH setup (independent CI step does not inherit install_minimum.sh exports)
+# The credential helpers shell out to gh/glab, which mise installs as shims.
+export XDG_BIN_HOME="${XDG_BIN_HOME:-$HOME/.local/bin}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export PATH="${XDG_DATA_HOME}/mise/shims:${XDG_BIN_HOME}:$PATH"
+
 DOT_PATH=$(cd "$(dirname "$0")/.." && pwd)
 
 EXPECTED_NAME="Akira Maruoka"
 EXPECTED_EMAIL="akmaru0266@gmail.com"
 
-case "$(uname)" in
-    Darwin) OS_FILE="${DOT_PATH}/.gitconfig_mac" ;;
-    Linux)  OS_FILE="${DOT_PATH}/.gitconfig_linux" ;;
-    *)      OS_FILE="" ;;
-esac
+# Credential helpers, in the order .gitconfig declares them. Both CLIs read the
+# host from git's stdin and decline hosts they do not own, so one identical list
+# works on every OS -- no per-OS include and no hostname in this repo.
+EXPECTED_HELPERS=(
+    '!gh auth git-credential'
+    '!glab auth git-credential'
+)
 
 echo "=========================================="
 echo "  Git Config Tests"
@@ -91,51 +99,66 @@ else
     fail "filter.lfs.required is not true"
 fi
 
-# Test 5: ~/.gitconfig_os symlink resolves to an existing file
+# Test 5: the per-OS credential include is gone
+#
+# Credential handling is delegated to gh/glab, which need no OS-specific
+# backend, so ~/.gitconfig_os and the .gitconfig_{linux,mac,windows} files it
+# pointed at must not come back. Guard against a partial revert leaving the
+# include in place with no file behind it.
 echo ""
-echo "Test 5: ~/.gitconfig_os resolves"
-if [[ -e "${HOME}/.gitconfig_os" ]]; then
-    pass "~/.gitconfig_os resolves to $(readlink "${HOME}/.gitconfig_os" 2>/dev/null || echo "${HOME}/.gitconfig_os")"
+echo "Test 5: no per-OS credential include"
+os_include_refs=""
+while IFS= read -r f; do
+    [[ -f "$f" ]] || continue
+    # Strip comments first: .gitconfig explains in prose why these files are
+    # gone, and that rationale must not read as a live reference. Every file
+    # type checked here (gitconfig, sh, ps1) comments with # (git also uses ;).
+    if sed -E 's/[[:space:]]*[#;].*$//' "$f" \
+        | grep -qE '\.gitconfig_(os|linux|mac|windows)'; then
+        os_include_refs+="$f "
+    fi
+done < <(printf '%s\n' "${DOT_PATH}/.gitconfig" "${DOT_PATH}"/install_minimum.* \
+    && find "${DOT_PATH}/install" -type f 2>/dev/null)
+leftover_os_files=$(ls "${DOT_PATH}"/.gitconfig_{linux,mac,windows} 2>/dev/null || true)
+if [[ -n "$os_include_refs" ]]; then
+    fail "per-OS gitconfig still referenced by: $(echo "$os_include_refs" | tr '\n' ' ')"
+elif [[ -n "$leftover_os_files" ]]; then
+    fail "per-OS gitconfig files still present: $(echo "$leftover_os_files" | tr '\n' ' ')"
 else
-    fail "~/.gitconfig_os is missing or a dangling symlink"
+    pass "no .gitconfig_os indirection remains"
 fi
 
-# Test 6: effective credential.helper matches the OS-specific config
+# Test 6: effective credential.helper is the gh + glab list, in order
+#
+# Order matters only for which CLI is spawned first; both decline foreign hosts
+# silently (exit 1, no output), so git falls through to the next one.
 echo ""
-echo "Test 6: credential.helper matches OS config"
-if [[ -z "$OS_FILE" ]]; then
-    fail "unsupported OS: $(uname)"
+echo "Test 6: credential.helper is gh + glab"
+mapfile -t actual_helpers < <(gc --get-all credential.helper 2>/dev/null || true)
+if [[ "${actual_helpers[*]}" == "${EXPECTED_HELPERS[*]}" ]]; then
+    pass "credential.helper is ${#actual_helpers[@]} entries: ${actual_helpers[*]}"
 else
-    expected_helper=$(grep -E '^[[:space:]]*helper[[:space:]]*=' "$OS_FILE" | sed -E 's/^[^=]*=[[:space:]]*//' | head -1)
-    actual_helper=$(gc credential.helper 2>/dev/null || true)
-    if [[ "$actual_helper" == "$expected_helper" ]]; then
-        pass "credential.helper is '$actual_helper'"
-    else
-        fail "credential.helper expected '$expected_helper', got '$actual_helper'"
-    fi
+    fail "credential.helper expected '${EXPECTED_HELPERS[*]}', got '${actual_helpers[*]:-<none>}'"
 fi
 
-# Test 7: credential helper is resolvable (binary/command exists)
+# Test 7: every configured helper resolves to an executable
+#
+# The helpers are '!<cmd> ...' shell forms, so check the command word rather
+# than looking for a git-credential-* binary.
 echo ""
-echo "Test 7: credential helper is resolvable"
-helper="${expected_helper:-}"
-if [[ -z "$helper" ]]; then
-    fail "no credential helper configured for this OS"
-elif [[ "$helper" == /* ]]; then
-    # Absolute path helper
-    if [[ -x "$helper" ]]; then
-        pass "helper binary exists: $helper"
-    else
-        fail "helper binary missing or not executable: $helper"
-    fi
+echo "Test 7: credential helpers are resolvable"
+if [[ ${#actual_helpers[@]} -eq 0 ]]; then
+    fail "no credential helper configured"
 else
-    # Bare name -> git looks for git-credential-<name>
-    if command -v "git-credential-${helper}" &> /dev/null \
-        || [[ -x "$(git --exec-path)/git-credential-${helper}" ]]; then
-        pass "git-credential-${helper} is resolvable"
-    else
-        fail "git-credential-${helper} not found"
-    fi
+    for helper in "${actual_helpers[@]}"; do
+        # '!gh auth git-credential' -> 'gh'
+        cmd=$(echo "${helper#!}" | awk '{print $1}')
+        if command -v "$cmd" &> /dev/null; then
+            pass "$cmd is resolvable ($helper)"
+        else
+            fail "$cmd not found (from helper '$helper')"
+        fi
+    done
 fi
 
 # ---------------------------------------------------------------------------
@@ -181,7 +204,7 @@ fi
 echo ""
 echo "Test 10: missing optional includes tolerated"
 if HOME="$TEST_HOME" git -C "$NONREPO" config --list &> /dev/null; then
-    pass "git config --list succeeds with absent ~/.gitconfig_os/.work.gitconfig"
+    pass "git config --list succeeds with absent ~/.work.gitconfig"
 else
     fail "git config --list failed with absent optional includes"
 fi

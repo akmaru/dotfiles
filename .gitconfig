@@ -12,9 +12,18 @@
 	process = git-lfs filter-process
 	required = true
 
-
-[include]
-	path = ~/.gitconfig_os
+# Delegate HTTPS credentials to the host's own CLI. git passes `host=` on stdin,
+# so each CLI decides from its own config whether it owns that host and declines
+# the others silently (exit 1, no output) -- git then falls through to the next
+# entry. Two consequences worth keeping:
+#   - No hostname belongs here, so work-internal hosts stay out of this repo.
+#   - Neither CLI needs a system keyring, so this replaces the per-OS
+#     libsecret / osxkeychain / manager split that ~/.gitconfig_os carried.
+# Hosts are registered per machine with `gh auth login` / `glab auth login`.
+# A host neither CLI knows falls through to a terminal prompt.
+[credential]
+	helper = !gh auth git-credential
+	helper = !glab auth git-credential
 
 [includeIf "hasconfig:remote.*.url:git@github.com:Maru0137/**"]
 	path = ~/.gitconfig_dqrta

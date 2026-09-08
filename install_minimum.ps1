@@ -88,7 +88,6 @@ Write-Host ""
 Write-Host "[3/4] Setting up Git config..." -ForegroundColor Yellow
 
 New-Symlink -Link "$HOME\.gitconfig" -Target "$DotPath\.gitconfig"
-New-Symlink -Link "$HOME\.gitconfig_os" -Target "$DotPath\.gitconfig_windows"
 
 # ============================================================
 # SSH
