@@ -16,6 +16,12 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
+# XDG / PATH setup (independent CI step does not inherit install_minimum.sh exports)
+# The credential helpers shell out to gh/glab, which mise installs as shims.
+export XDG_BIN_HOME="${XDG_BIN_HOME:-$HOME/.local/bin}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export PATH="${XDG_DATA_HOME}/mise/shims:${XDG_BIN_HOME}:$PATH"
+
 DOT_PATH=$(cd "$(dirname "$0")/.." && pwd)
 
 EXPECTED_NAME="Akira Maruoka"
