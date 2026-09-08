@@ -52,6 +52,3 @@ gh = "latest"
 
 # GitLab CLI
 glab = "latest"
-
-# GCP CLI
-gcloud = "latest"
