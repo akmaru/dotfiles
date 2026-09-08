@@ -14,7 +14,7 @@ Windows / macOS / Ubuntu 対応の個人用 dotfiles リポジトリ。
 │   └── windows.ps1
 ├── .zshrc / .p10k.zsh        # Zsh + Powerlevel10k
 ├── .tmux.conf                # tmux
-├── .gitconfig                # Git (OS別・ディレクトリ別の conditional include あり)
+├── .gitconfig                # Git (remote 別の conditional include あり)
 ├── .vimrc / .vim/            # Vim (dein プラグイン管理, userautoload/ でモジュール分割)
 ├── .emacs.d/                 # Emacs
 ├── .vscode/                  # VSCode (settings, keybindings, extensions)
@@ -58,6 +58,6 @@ GitHub Actions で Ubuntu 24.04 / 26.04 の Docker イメージをビルドし�
 
 ## 注意点
 
-- `.gitconfig` は OS 別 (`.gitconfig_linux` / `.gitconfig_mac`) とディレクトリ別の conditional include を使用
+- `.gitconfig` は remote 別の conditional include を使用。HTTPS の資格情報は `gh` / `glab` の credential helper に委譲しており、OS 別の分岐やホスト名の記述は持たない
 - Zsh プラグインは `zsh-defer` で遅延読み込みしてパフォーマンスを確保
 - XDG Base Directory 仕様に準拠 (`~/.local/bin`, `~/.config`, `~/.local/share`)
