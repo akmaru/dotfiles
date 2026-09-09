@@ -52,3 +52,11 @@ gh = "latest"
 
 # GitLab CLI
 glab = "latest"
+
+# Editor
+## Neovim (LazyVim requires >= 0.11.2, which is newer than the apt/brew packages)
+neovim = "latest"
+## Git UI launched from LazyVim (<leader>gg)
+lazygit = "latest"
+## Parser generator for nvim-treesitter
+tree-sitter = "latest"

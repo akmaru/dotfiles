@@ -81,10 +81,20 @@ ln -sf ${DOT_PATH}/.vim ~/.vim
 ln -sf ${DOT_PATH}/.vimrc ~/.vimrc
 
 #
-# nvim
+# nvim (LazyVim)
 #
-mkdir -p $HOME/.config/nvim
-ln -sf ${DOT_PATH}/.vimrc $HOME/.config/nvim/init.vim
+# ディレクトリごとリンクすることで、LazyVim が書き出す lazyvim.json / lazy-lock.json が
+# リポジトリ側に残り、構成をそのまま追跡できる
+# 実ディレクトリ/ファイルが先に存在すると symlink が入れ子になるため、その場合は中断
+if [ -e "${XDG_CONFIG_HOME}/nvim" ] && [ ! -L "${XDG_CONFIG_HOME}/nvim" ]; then
+  echo "Error: ${XDG_CONFIG_HOME}/nvim already exists. Back it up and re-run: mv ${XDG_CONFIG_HOME}/nvim{,.bak}" >&2
+  exit 1
+fi
+ln -sfn ${DOT_PATH}/nvim ${XDG_CONFIG_HOME}/nvim
+
+# herdr はプラグイン pane やカスタムコマンドを mise の shim を含まない PATH で起動するため、
+# XDG_BIN_HOME 経由でも mise 管理の nvim に届くようにする
+ln -sfn ${XDG_DATA_HOME}/mise/shims/nvim ${XDG_BIN_HOME}/nvim
 
 #
 # emacs

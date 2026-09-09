@@ -16,6 +16,7 @@ Windows / macOS / Ubuntu 対応の個人用 dotfiles リポジトリ。
 ├── .tmux.conf                # tmux
 ├── .gitconfig                # Git (remote 別の conditional include あり)
 ├── .vimrc / .vim/            # Vim (dein プラグイン管理, userautoload/ でモジュール分割)
+├── nvim/                     # Neovim (LazyVim, ~/.config/nvim へディレクトリごと symlink)
 ├── .emacs.d/                 # Emacs
 ├── .vscode/                  # VSCode (settings, keybindings, extensions)
 ├── .ssh/config               # SSH (個人用のみ, config.d/*.conf で会社用を Include)
@@ -42,6 +43,19 @@ Windows / macOS / Ubuntu 対応の個人用 dotfiles リポジトリ。
 
 個別環境用リポジトリのセットアップスクリプトで `~/.ssh/config.d/work.conf` にシンボリックリンクを作成する想定。
 
+## Neovim (LazyVim)
+
+`nvim/` を `~/.config/nvim` へ**ディレクトリごと** symlink する。LazyVim が書き出す
+`lazyvim.json` (`:LazyExtras` の結果) と `lazy-lock.json` (プラグインのリビジョン) が
+リポジトリ側に残り、構成をそのまま追跡できるようにするため。
+
+- nvim 本体・`lazygit`・`tree-sitter` は mise 管理 (apt/brew の版は LazyVim の要件 >= 0.11.2 を満たさない)
+- herdr の pane で動くエージェントへコード範囲を渡すため `herdr-nvim` を入れている
+  (`ai.claudecode` extra はキーマップと役割が衝突するため使わない)
+- 素の `vim` 用の `.vimrc` / `.vim/` (dein) は別系統としてそのまま残している
+
+詳細は [doc/nvim.md](../doc/nvim.md) を参照。
+
 ## テスト
 
 GitHub Actions で Ubuntu 24.04 / 26.04 の Docker イメージをビルドし、`install_minimum.sh` の動作を検証する。
@@ -49,6 +63,7 @@ GitHub Actions で Ubuntu 24.04 / 26.04 の Docker イメージをビルドし�
 - ワークフロー: `.github/workflows/test.yml`
 - Docker 環境: `test/docker-compose.yml` + `test/ubuntu.Dockerfile`
 - 環境変数: `test/init_env.sh` で HOST_UID/GID を `.env` に書き出し、`source .env` でエクスポートしてからビルドする
+- 個別テスト: `test/test_nvim.sh` (LazyVim)
 
 ## コミットメッセージ規約
 
