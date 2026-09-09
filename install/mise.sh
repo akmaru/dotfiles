@@ -19,6 +19,11 @@ curl https://mise.run | sh
 mkdir -p ${MISE_USER_DIR}
 ln -sf "${DOT_PATH}"/mise/config.toml ${MISE_USER_DIR}/config.toml
 
+echo 'eval "$(~/.local/bin/mise activate bash)"' >> ~/.bashrc
+
+# Add mise to PATH before running mise commands
+export PATH="${HOME}/.local/share/mise/shims:${HOME}/.local/bin:${PATH}"
+
 # This file is the *user* config (linked above), but "mise/config.toml" is also
 # one of the project config paths mise auto-discovers relative to the cwd. So
 # every mise command run from inside this repo finds it as an untrusted project
@@ -26,11 +31,6 @@ ln -sf "${DOT_PATH}"/mise/config.toml ${MISE_USER_DIR}/config.toml
 # which breaks anything launched from here (e.g. nvim via ~/.local/bin).
 # Trusting it is safe: it is our own config, already active as the user config.
 mise trust "${DOT_PATH}/mise/config.toml"
-
-echo 'eval "$(~/.local/bin/mise activate bash)"' >> ~/.bashrc
-
-# Add mise to PATH before running mise commands
-export PATH="${HOME}/.local/share/mise/shims:${HOME}/.local/bin:${PATH}"
 
 mise install
 mise doctor || true
