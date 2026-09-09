@@ -54,4 +54,10 @@ typeset -gU LD_LIBRARY_PATH
 # Untracked, so absolute paths and host-specific tools stay out of this repo.
 # Sourced last to let it override anything above. Mirrors the "include it if it
 # exists" shape of .gitconfig's ~/.work.gitconfig.
-[ -f "$HOME/.zshenv.local" ] && source "$HOME/.zshenv.local"
+#
+# Keep this an `if`, not `[ -f ... ] && source ...`. It is the last statement in
+# the file, so a short-circuited && leaves .zshenv exiting 1 on every machine
+# without the file, which makes plain `zsh` exit non-zero.
+if [ -f "$HOME/.zshenv.local" ]; then
+  source "$HOME/.zshenv.local"
+fi
