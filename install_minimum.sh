@@ -77,7 +77,11 @@ ln -sf ${DOT_PATH}/.gitignore_global ~/.gitignore_global
 #
 # vim
 #
-ln -sf ${DOT_PATH}/.vim ~/.vim
+# -n is required for the directory link: without it a re-run dereferences the
+# existing ~/.vim symlink and creates .vim/.vim inside the repo instead of
+# replacing the link. That artifact used to get committed, rewritten with
+# whichever machine ran install last.
+ln -sfn ${DOT_PATH}/.vim ~/.vim
 ln -sf ${DOT_PATH}/.vimrc ~/.vimrc
 
 #

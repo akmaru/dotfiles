@@ -12,6 +12,14 @@
 	process = git-lfs filter-process
 	required = true
 
+[init]
+	defaultBranch = main
+
+# ghq.root is deliberately absent: the repository root is an absolute path that
+# differs per machine. Set GHQ_ROOT in ~/.zshenv.local instead -- the environment
+# variable takes precedence over this config, so nothing machine-specific has to
+# live in the shared dotfiles.
+
 # Delegate HTTPS credentials to the host's own CLI. git passes `host=` on stdin,
 # so each CLI decides from its own config whether it owns that host and declines
 # the others silently (exit 1, no output) -- git then falls through to the next
