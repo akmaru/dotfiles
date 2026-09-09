@@ -39,11 +39,19 @@ if [ -s ${mise_path} ]; then
   eval "$(${mise_path} activate zsh)"
 fi
 
-# For llvm
-export PATH=/usr/local/opt/llvm/bin:$PATH
+# For llvm (Homebrew prefix; absent on Linux and on Apple Silicon)
+[ -d /usr/local/opt/llvm/bin ] && export PATH=/usr/local/opt/llvm/bin:$PATH
 
 #
 # Remove Duplicated Environments
 #
 typeset -gU PATH
 typeset -gU LD_LIBRARY_PATH
+
+#
+# Machine-local settings
+#
+# Untracked, so absolute paths and host-specific tools stay out of this repo.
+# Sourced last to let it override anything above. Mirrors the "include it if it
+# exists" shape of .gitconfig's ~/.work.gitconfig.
+[ -f "$HOME/.zshenv.local" ] && source "$HOME/.zshenv.local"
