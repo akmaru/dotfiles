@@ -7,7 +7,7 @@ brew "htop"
 brew "llvm"
 brew "make"
 brew "mas"
-brew "neovim"
+# neovim is managed by mise (see mise/config.toml) so that all machines share a version
 brew "ninja"
 brew "sheldon"
 brew "tmux"

@@ -4,6 +4,8 @@ set -euox pipefail
 # Set DOT_PATH if not already set (exported by install_minimum.sh when sourced)
 DOT_PATH="${DOT_PATH:-$(cd "$(dirname "$0")/.."; pwd)}"
 
+# neovim itself comes from mise; LazyVim needs a newer version than apt provides.
+# gcc builds nvim-treesitter parsers, unzip extracts the archives mason downloads.
 packages=("
   ca-certificates \
   curl \
@@ -12,9 +14,9 @@ packages=("
   libsecret-1-0 \
   libsecret-1-dev \
   make \
-  neovim \
   pkg-config \
   tmux \
+  unzip \
   zsh \
 ")
 
