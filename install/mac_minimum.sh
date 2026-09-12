@@ -1,7 +1,8 @@
 #!/bin/sh
 set -euox pipefail
 
-export DOT_PATH=$(dirname "$(readlink -f "$0")")
+# Set DOT_PATH if not already set (exported by install_minimum.sh when sourced)
+DOT_PATH="${DOT_PATH:-$(cd "$(dirname "$0")/.."; pwd)}"
 
 # In advance, run the following commands to install homebrew and git.
 # /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
