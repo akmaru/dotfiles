@@ -37,9 +37,6 @@ nodejs = "lts"
 ## Rust
 rust = "stable"
 
-## ansible
-ansible = "latest"
-
 ## terraform
 terraform = "latest"
 
