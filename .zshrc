@@ -282,3 +282,9 @@ bindkey "^]" ghq-fzf
 # aws
 #
 import aws
+
+#
+# Claude Code: デフォルトのプロファイル（CLAUDE_CONFIG_DIR）
+# 会社の環境では dotfiles_fixstars の install がこのファイルを書く。無ければ ~/.claude（個人）が使われる。
+#
+[ -f ~/.config/claude/profile.env ] && source ~/.config/claude/profile.env
