@@ -282,3 +282,6 @@ bindkey "^]" ghq-fzf
 # aws
 #
 import aws
+
+# Tailscale CLI (bundled in Tailscale.app, not on PATH)
+alias tailscale="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
