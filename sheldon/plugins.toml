@@ -25,6 +25,17 @@ github = "romkatv/zsh-defer"
 [plugins.compinit]
 inline = 'autoload -Uz compinit && zsh-defer compinit'
 
+# compinit の後、補完ウィジェットをラップする autosuggestions / syntax-highlighting より前に読む
+[plugins.fzf-tab]
+github = "Aloxaf/fzf-tab"
+apply = ['defer']
+
+# Ctrl-G Ctrl-B (branch) / Ctrl-G Ctrl-T (tag) などで git オブジェクトを fzf で選ぶ
+[plugins.fzf-git]
+github = "junegunn/fzf-git.sh"
+use = ["fzf-git.sh"]
+apply = ['defer']
+
 [plugins.powerlevel10k]
 github = "romkatv/powerlevel10k"
 
