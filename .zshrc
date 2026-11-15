@@ -268,10 +268,14 @@ fi
 # frepo - ghq cd browser
 ghq-fzf() {
   local dir
-  dir=$(ghq list > /dev/null | fzf-tmux --reverse +m) &&
-    cd $(ghq root)/$dir
+  dir=$(ghq list -p | fzf --reverse +m --height=40%)
+  if [[ -n $dir ]]; then
+    BUFFER="cd ${(q)dir}"
+    zle accept-line
+  fi
+  zle reset-prompt
 }
-# zle -N ghq-fzf
+zle -N ghq-fzf
 bindkey "^]" ghq-fzf
 
 
