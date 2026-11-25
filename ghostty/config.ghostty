@@ -7,7 +7,8 @@ font-size = 13
 font-thicken = true
 
 # Theme
-theme = Monokai Pro Spectrum
+theme = Grok Night
+background = #222222
 
 # Window
 # iTerm2 の Transparency 0.13 に合わせる
