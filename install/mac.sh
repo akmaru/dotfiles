@@ -7,6 +7,10 @@ set -euox pipefail
 
 ln -sf $HOME/dotfiles/Brewfile $HOME/Brewfile
 
+# Ghostty
+mkdir -p $HOME/.config
+ln -sfn $HOME/dotfiles/ghostty $HOME/.config/ghostty
+
 # Install packages
 brew update && brew upgrade
 brew bundle
