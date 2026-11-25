@@ -19,6 +19,7 @@ Windows / macOS / Ubuntu 対応の個人用 dotfiles リポジトリ。
 ├── nvim/                     # Neovim (LazyVim, ~/.config/nvim へディレクトリごと symlink)
 ├── .emacs.d/                 # Emacs
 ├── .vscode/                  # VSCode (settings, keybindings, extensions)
+├── ghostty/                  # Ghostty (macOS, ~/.config/ghostty へディレクトリごと symlink)
 ├── .ssh/config               # SSH (個人用のみ, config.d/*.conf で会社用を Include)
 ├── sheldon/plugins.toml      # Zsh プラグイン管理
 ├── mise/config.toml          # ツールバージョン管理 (Python, Node, Go 等)
