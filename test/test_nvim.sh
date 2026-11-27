@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# test_nvim.sh - Test the LazyVim-based nvim setup
+# test_nvim.sh - Test the vim.pack-based nvim setup
 #
 set -uo pipefail
 
@@ -16,11 +16,11 @@ DOT_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")/../" && pwd)
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-${HOME}/.config}"
 NVIM_CONFIG="${XDG_CONFIG_HOME}/nvim"
 
-# LazyVim requires Neovim >= 0.11.2
-REQUIRED_NVIM_VERSION="0.11.2"
+# vim.pack (the built-in plugin manager) first shipped in Neovim 0.12
+REQUIRED_NVIM_VERSION="0.12.0"
 
 echo "=========================================="
-echo "  nvim (LazyVim) Setup Tests"
+echo "  nvim (vim.pack) Setup Tests"
 echo "=========================================="
 echo ""
 echo "Repository:  ${DOT_PATH}"
@@ -38,8 +38,8 @@ pass() {
     echo -e "${GREEN}✓ PASS:${NC} $1"
 }
 
-# lazy.nvim logs one line per plugin per task, which drowns the test output.
-# Keep it in a log and only surface it when something actually breaks.
+# Plugin installs and parser builds print a lot. Keep it in a log and only
+# surface it when something actually breaks.
 NVIM_LOG=$(mktemp)
 trap 'rm -f "${NVIM_LOG}"' EXIT
 
@@ -59,15 +59,19 @@ run_nvim_lua() {
     run_nvim -c "lua local ok, err = pcall(function() $1 end); if not ok then io.stderr:write(tostring(err) .. '\n'); os.exit(1) end; os.exit(0)"
 }
 
-# Test 1: Check nvim is available and new enough for LazyVim
+version_ge() {
+    # sort -V puts the lower version first, so the required version must come first
+    [[ "$(printf '%s\n%s\n' "$1" "$2" | sort -V | head -1)" == "$1" ]]
+}
+
+# Test 1: Check nvim is available and new enough for vim.pack
 echo "Test 1: Check nvim is available and >= ${REQUIRED_NVIM_VERSION}"
 if ! command -v nvim &> /dev/null; then
     fail "nvim is not installed"
     exit 1
 fi
 nvim_version=$(nvim --version | head -1 | sed -E 's/^NVIM v?//')
-# sort -V puts the lower version first, so the required version must come first
-if [[ "$(printf '%s\n%s\n' "${REQUIRED_NVIM_VERSION}" "${nvim_version}" | sort -V | head -1)" == "${REQUIRED_NVIM_VERSION}" ]]; then
+if version_ge "${REQUIRED_NVIM_VERSION}" "${nvim_version}"; then
     pass "nvim ${nvim_version} satisfies >= ${REQUIRED_NVIM_VERSION} ($(command -v nvim))"
 else
     fail "nvim ${nvim_version} is older than ${REQUIRED_NVIM_VERSION}"
@@ -75,29 +79,36 @@ else
 fi
 
 # Test 2: The whole config directory must be a symlink into the repository.
-# Linking the directory (not individual files) is what lets LazyVim write
-# lazyvim.json / lazy-lock.json back into the repository.
+# Linking the directory (not individual files) is what lets vim.pack write
+# nvim-pack-lock.json back into the repository.
 echo ""
 echo "Test 2: Check ${NVIM_CONFIG} is a symlink to ${DOT_PATH}/nvim"
 if [[ ! -L "${NVIM_CONFIG}" ]]; then
-    fail "${NVIM_CONFIG} is not a symlink (LazyVim state would not land in the repository)"
+    fail "${NVIM_CONFIG} is not a symlink (the lockfile would not land in the repository)"
 elif [[ "$(readlink -f "${NVIM_CONFIG}")" != "$(readlink -f "${DOT_PATH}/nvim")" ]]; then
     fail "${NVIM_CONFIG} points to $(readlink -f "${NVIM_CONFIG}"), expected ${DOT_PATH}/nvim"
 else
     pass "${NVIM_CONFIG} -> $(readlink "${NVIM_CONFIG}")"
 fi
 
-# Test 3: Check the LazyVim entry points exist
+# Test 3: Check the entry points exist and no LazyVim state is left behind.
+# A stale lazy-lock.json would suggest it is still the source of truth.
 echo ""
-echo "Test 3: Check LazyVim config files exist"
+echo "Test 3: Check config files exist and LazyVim files are gone"
 missing=()
-for f in init.lua lua/config/lazy.lua lua/config/options.lua lua/config/keymaps.lua lua/config/autocmds.lua; do
+for f in init.lua nvim-pack-lock.json lua/config/options.lua lua/config/keymaps.lua lua/config/autocmds.lua; do
     [[ -f "${DOT_PATH}/nvim/${f}" ]] || missing+=("${f}")
 done
-if [[ ${#missing[@]} -eq 0 ]]; then
-    pass "All LazyVim config files present"
-else
+leftover=()
+for f in lazy-lock.json lazyvim.json lua/config/lazy.lua; do
+    [[ -e "${DOT_PATH}/nvim/${f}" ]] && leftover+=("${f}")
+done
+if [[ ${#missing[@]} -ne 0 ]]; then
     fail "Missing config files: ${missing[*]}"
+elif [[ ${#leftover[@]} -ne 0 ]]; then
+    fail "LazyVim files are left behind: ${leftover[*]}"
+else
+    pass "All config files present, no LazyVim leftovers"
 fi
 
 # The remaining tests need a working config directory
@@ -108,91 +119,130 @@ if [[ $test_result -ne 0 ]]; then
     exit $test_result
 fi
 
-# Test 4: Plugins install headlessly
+# Test 4: Starting nvim installs every plugin from the lockfile without
+# prompting. A headless start must not block on the install confirmation.
 echo ""
-echo "Test 4: Install plugins (nvim --headless +Lazy! install)"
-if run_nvim "+Lazy! install" +qa; then
-    pass "Plugin install completed"
+echo "Test 4: Install plugins on first start (nvim --headless +qa)"
+if timeout 600 nvim --headless +qa > "${NVIM_LOG}" 2>&1; then
+    pass "Startup (with plugin install) completed"
 else
-    fail "Plugin install failed"
+    echo "--- nvim output ---"; cat "${NVIM_LOG}"; echo "-------------------"
+    fail "Startup failed or timed out (blocked on a confirmation prompt?)"
 fi
 
-# Test 5: The lockfile can reproduce the plugin set.
-# This is the IaC guarantee: lazy-lock.json in the repository is enough to
-# rebuild the exact same plugin versions on another machine.
+# Test 5: The lockfile reproduces the plugin set.
+# This is the IaC guarantee: nvim-pack-lock.json in the repository is enough to
+# rebuild the exact same plugin revisions on another machine.
 echo ""
-echo "Test 5: Restore plugins from lazy-lock.json (nvim --headless +Lazy! restore)"
-if [[ ! -f "${DOT_PATH}/nvim/lazy-lock.json" ]]; then
-    fail "nvim/lazy-lock.json was not written into the repository"
-elif run_nvim "+Lazy! restore" +qa; then
-    pass "Plugins restored from lazy-lock.json"
+echo "Test 5: Check every plugin matches the revision in nvim-pack-lock.json"
+lock_assert='
+  local lock = vim.json.decode(table.concat(vim.fn.readfile(vim.fn.stdpath("config") .. "/nvim-pack-lock.json"), "\n"))
+  local bad = {}
+  for _, p in ipairs(vim.pack.get()) do
+    local want = lock.plugins[p.spec.name]
+    if not want then
+      table.insert(bad, p.spec.name .. " (not in lockfile)")
+    elseif want.rev ~= p.rev then
+      table.insert(bad, p.spec.name .. " (" .. tostring(p.rev) .. " ~= " .. want.rev .. ")")
+    end
+  end
+  local installed = {}
+  for _, p in ipairs(vim.pack.get()) do installed[p.spec.name] = true end
+  for name in pairs(lock.plugins) do
+    if not installed[name] then table.insert(bad, name .. " (in lockfile but not installed)") end
+  end
+  assert(#bad == 0, table.concat(bad, ", "))'
+if run_nvim_lua "${lock_assert}"; then
+    pass "Installed plugins match nvim-pack-lock.json"
 else
-    fail "Restoring from lazy-lock.json failed"
+    fail "Installed plugins diverge from nvim-pack-lock.json"
 fi
 
-# Test 6: LazyVim itself is loadable
+# Test 6: lazy.nvim / LazyVim are really gone, not just unused
 echo ""
-echo "Test 6: Check LazyVim is on the runtimepath"
-if run_nvim_lua 'assert(require("lazyvim.config"))'; then
-    pass "require(\"lazyvim.config\") succeeded"
+echo "Test 6: Check lazy.nvim and LazyVim are not loaded"
+if run_nvim_lua 'assert(not package.loaded["lazy"], "lazy.nvim is loaded"); assert(not pcall(require, "lazyvim.config"), "LazyVim is on the runtimepath")'; then
+    pass "Neither lazy.nvim nor LazyVim is loaded"
 else
-    fail "LazyVim could not be loaded"
+    fail "lazy.nvim or LazyVim is still loaded"
 fi
 
 # Test 7: The colorscheme actually applies.
-# LazyVim silently falls back to habamax when loading fails, so asserting the
-# resulting colors_name is what catches a broken colorscheme spec.
+# `:colorscheme` failing would leave the builtin default, so asserting the
+# resulting colors_name is what catches a broken colorscheme setup.
 echo ""
 echo "Test 7: Check the configured colorscheme is applied"
 if run_nvim_lua 'assert(vim.g.colors_name == "monokai-pro", "colors_name = " .. tostring(vim.g.colors_name))'; then
     pass "colorscheme monokai-pro applied"
 else
-    fail "colorscheme was not applied (LazyVim fell back to habamax?)"
+    fail "colorscheme was not applied"
 fi
 
-# Test 8: LSP servers that no LazyVim extra provides are configured by hand.
-# cssls / html / bashls replace the coc-css / coc-html / coc-sh of the old setup.
+# Test 8: LSP servers are enabled through the builtin vim.lsp.enable().
+# cssls / html / bashls replace the coc-css / coc-html / coc-sh of the old vim
+# setup; the others replace the LazyVim language extras.
 echo ""
-echo "Test 8: Check hand-configured LSP servers are registered"
+echo "Test 8: Check LSP servers are enabled"
 lsp_assert='
-  local servers = LazyVim.opts("nvim-lspconfig").servers or {}
-  for _, name in ipairs({ "cssls", "html", "bashls" }) do
-    assert(servers[name], name .. " is not configured")
-  end'
+  for _, name in ipairs({ "cssls", "html", "bashls", "lua_ls", "gopls", "pyright", "vtsls", "clangd", "yamlls" }) do
+    assert(vim.lsp.is_enabled(name), name .. " is not enabled")
+  end
+  -- rustaceanvim starts rust-analyzer itself; a second client would duplicate diagnostics
+  assert(not vim.lsp.is_enabled("rust_analyzer"), "rust_analyzer must be left to rustaceanvim")'
 if run_nvim_lua "${lsp_assert}"; then
-    pass "cssls, html and bashls are configured"
+    pass "LSP servers are enabled (rust_analyzer left to rustaceanvim)"
 else
-    fail "some hand-configured LSP servers are missing"
+    fail "LSP server registration is wrong"
 fi
 
-# Test 9: herdr launches plugin panes and custom commands with a stripped PATH
+# Test 9: Completion uses the builtin autocompletion instead of a plugin
+echo ""
+echo "Test 9: Check builtin autocompletion is on"
+if run_nvim_lua 'assert(vim.o.autocomplete, "autocomplete is off"); for _, p in ipairs(vim.pack.get()) do assert(p.spec.name ~= "blink.cmp", "blink.cmp is installed") end'; then
+    pass "'autocomplete' is on and no completion plugin is installed"
+else
+    fail "builtin autocompletion is not configured"
+fi
+
+# Test 10: herdr launches plugin panes and custom commands with a stripped PATH
 # that has no mise shim directory, so they resolve nvim from /usr/bin or
 # ~/.local/bin. A stale system nvim there shadows the mise-managed one and the
-# herdr-nvim sidebar silently starts an ancient nvim that LazyVim cannot run on.
+# herdr-nvim sidebar silently starts an ancient nvim that has no vim.pack.
 echo ""
-echo "Test 9: Check nvim on a stripped PATH is >= ${REQUIRED_NVIM_VERSION}"
+echo "Test 10: Check nvim on a stripped PATH is >= ${REQUIRED_NVIM_VERSION}"
 stripped_path="/usr/local/bin:/usr/bin:/bin:${HOME}/.local/bin"
 stripped_nvim=$(env -i HOME="${HOME}" PATH="${stripped_path}" sh -c 'command -v nvim' || true)
 if [[ -z "${stripped_nvim}" ]]; then
     fail "no nvim on ${stripped_path}; tools launched by herdr would not find it"
 else
     stripped_version=$(env -i HOME="${HOME}" PATH="${stripped_path}" "${stripped_nvim}" --version | head -1 | sed -E 's/^NVIM v?//')
-    if [[ "$(printf '%s\n%s\n' "${REQUIRED_NVIM_VERSION}" "${stripped_version}" | sort -V | head -1)" == "${REQUIRED_NVIM_VERSION}" ]]; then
+    if version_ge "${REQUIRED_NVIM_VERSION}" "${stripped_version}"; then
         pass "stripped PATH resolves nvim ${stripped_version} (${stripped_nvim})"
     else
         fail "stripped PATH resolves nvim ${stripped_version} (${stripped_nvim}), older than ${REQUIRED_NVIM_VERSION}"
     fi
 fi
 
-# Test 10: The nvim half of the herdr-nvim integration. The herdr half (sidebar
-# and file picker) is installed as a herdr plugin; this spec is what provides the
-# annotation commands that send file:line context to the agent in the next pane.
+# Test 11: The nvim half of the herdr-nvim integration. The herdr half (sidebar
+# and file picker) is installed as a herdr plugin; this plugin is what provides
+# the annotation commands that send file:line context to the agent in the next pane.
 echo ""
-echo "Test 10: Check the herdr-nvim plugin spec is registered"
-if run_nvim_lua 'assert(require("lazy.core.config").plugins["herdr-nvim"], "herdr-nvim is not in the lazy spec")'; then
-    pass "herdr-nvim is registered with lazy.nvim"
+echo "Test 11: Check herdr-nvim is active"
+if run_nvim_lua 'local active = false; for _, p in ipairs(vim.pack.get()) do if p.spec.name == "herdr-nvim" then active = p.active end end; assert(active, "herdr-nvim is not active")'; then
+    pass "herdr-nvim is added to the session"
 else
-    fail "herdr-nvim is not registered (nvim/lua/plugins/herdr.lua missing?)"
+    fail "herdr-nvim is not active (nvim/lua/plugins/herdr.lua missing?)"
+fi
+
+# Test 12: The start screen renders without lazy.nvim. snacks' default dashboard
+# has a "startup" section that requires lazy.stats; it only runs on UIEnter, so
+# the headless tests above never open it unless asked to.
+echo ""
+echo "Test 12: Check the snacks dashboard opens without lazy.nvim"
+if run_nvim_lua 'Snacks.dashboard.open()'; then
+    pass "Snacks.dashboard.open() succeeded"
+else
+    fail "the dashboard fails to render (a section still depends on lazy.nvim?)"
 fi
 
 echo ""

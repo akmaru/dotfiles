@@ -85,9 +85,9 @@ ln -sfn ${DOT_PATH}/.vim ~/.vim
 ln -sf ${DOT_PATH}/.vimrc ~/.vimrc
 
 #
-# nvim (LazyVim)
+# nvim (vim.pack)
 #
-# ディレクトリごとリンクすることで、LazyVim が書き出す lazyvim.json / lazy-lock.json が
+# ディレクトリごとリンクすることで、vim.pack が書き出す nvim-pack-lock.json が
 # リポジトリ側に残り、構成をそのまま追跡できる
 # 実ディレクトリ/ファイルが先に存在すると symlink が入れ子になるため、その場合は中断
 if [ -e "${XDG_CONFIG_HOME}/nvim" ] && [ ! -L "${XDG_CONFIG_HOME}/nvim" ]; then

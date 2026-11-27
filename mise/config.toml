@@ -54,9 +54,9 @@ glab = "latest"
 "github:steveyegge/beads" = "latest"
 
 # Editor
-## Neovim (LazyVim requires >= 0.11.2, which is newer than the apt/brew packages)
+## Neovim (vim.pack requires >= 0.12, which is newer than the apt/brew packages)
 neovim = "latest"
-## Git UI launched from LazyVim (<leader>gg)
+## Git UI launched from nvim (<leader>gg)
 lazygit = "latest"
 ## Parser generator for nvim-treesitter
 tree-sitter = "latest"

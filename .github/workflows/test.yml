@@ -104,7 +104,7 @@ jobs:
         if: ${{ !cancelled() }}
         run: ./test/test_git.sh
 
-      - name: Test nvim (LazyVim) setup
+      - name: Test nvim (vim.pack) setup
         if: ${{ !cancelled() }}
         run: ./test/test_nvim.sh
 
