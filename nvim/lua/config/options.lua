@@ -52,7 +52,7 @@ opt.foldtext = ""
 
 opt.sessionoptions = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp", "folds" }
 opt.shortmess:append({ W = true, I = true, c = true, C = true })
-opt.spelllang = { "en" }
+opt.spelllang = { "en", "cjk" } -- cjk: 日本語はスペルチェックの対象から外す (:h spell-cjk)
 opt.wildmode = "longest:full,full"
 
 -- 組み込みの自動補完 (Neovim 0.12)。blink.cmp の代わり。
