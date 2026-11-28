@@ -10,7 +10,7 @@ Windows / macOS / Ubuntu 対応の個人用 dotfiles リポジトリ。
 ├── install_minimum.sh        # 最小インストール (Docker/CLI向け)
 ├── install/                  # ツール別インストールスクリプト
 │   ├── mac.sh / ubuntu.sh / ubuntu_minimum.sh
-│   ├── sheldon.sh / mise.sh / rust.sh
+│   ├── sheldon.sh / mise.sh / rust.sh / install_ghostty.sh
 │   └── windows.ps1
 ├── .zshrc / .p10k.zsh        # Zsh + Powerlevel10k
 ├── .tmux.conf                # tmux
@@ -19,7 +19,7 @@ Windows / macOS / Ubuntu 対応の個人用 dotfiles リポジトリ。
 ├── nvim/                     # Neovim (vim.pack, ~/.config/nvim へディレクトリごと symlink)
 ├── .emacs.d/                 # Emacs
 ├── .vscode/                  # VSCode (settings, keybindings, extensions)
-├── ghostty/                  # Ghostty (macOS, ~/.config/ghostty へディレクトリごと symlink)
+├── ghostty/                  # Ghostty (macOS / Ubuntu, ~/.config/ghostty へディレクトリごと symlink)
 ├── .ssh/config               # SSH (個人用のみ, config.d/*.conf で会社用を Include)
 ├── sheldon/plugins.toml      # Zsh プラグイン管理
 ├── mise/config.toml          # ツールバージョン管理 (Python, Node, Go 等)
