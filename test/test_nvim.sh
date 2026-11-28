@@ -245,6 +245,23 @@ else
     fail "the dashboard fails to render (a section still depends on lazy.nvim?)"
 fi
 
+# Test 13: Spell checking in prose buffers skips Japanese. With only "en" in
+# 'spelllang', every run of Japanese between spaces is flagged as one bad word,
+# which buries the real English typos under squiggles.
+echo ""
+echo "Test 13: Check spell checking skips CJK but still flags English typos"
+spell_assert='
+  vim.cmd("enew | setfiletype markdown")
+  assert(vim.wo.spell, "spell is off in markdown buffers")
+  local bad = vim.spell.check("Neovimの組み込みプラグインマネージャ")
+  assert(#bad == 1 and bad[1][1] == "Neovim", "Japanese is spell checked: " .. vim.inspect(bad))
+  assert(#vim.spell.check("speling") == 1, "English typos are no longer flagged")'
+if run_nvim_lua "${spell_assert}"; then
+    pass "Japanese is excluded from spell checking, English typos are flagged"
+else
+    fail "'spelllang' does not exclude CJK characters"
+fi
+
 echo ""
 echo "=========================================="
 if [[ $test_result -eq 0 ]]; then
